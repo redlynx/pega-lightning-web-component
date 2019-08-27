@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="PegaWorkList">
+  <apiVersion>45.0</apiVersion>
+  <isExposed>true</isExposed>
+  <masterLabel>Create Work</masterLabel>
+  <description>Create new Pega cases from Salesforce.</description>  
+  <targets>
+    <target>lightning__AppPage</target>
+    <target>lightning__RecordPage</target>
+    <target>lightning__HomePage</target>
+  </targets>
+  <targetConfigs>
+      <targetConfig targets="lightning__AppPage, lightning__HomePage, lightning__RecordPage">
+          <property name="url" placeholder="Enter Pega URL" type="String" required="true" default="https://your_pega_server/prweb/api/v1/" />
+          <property name="authentication" datasource="Basic,JWT Bearer" type="String" required="true" default="JWT Bearer"/>
+          <property name="user" placeholder="Enter User ID" type="String" required="false" />
+          <property name="password" placeholder="Enter Password" required="false" type="String" />                  
+      </targetConfig>
+  </targetConfigs> 
+</LightningComponentBundle>

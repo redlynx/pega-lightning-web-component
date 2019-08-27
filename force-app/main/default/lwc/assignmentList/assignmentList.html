@@ -1,0 +1,66 @@
+<template>
+	<div class={flexipageRegionWidth} >
+		<lightning-layout multiple-rows="true">
+            <lightning-layout-item class="slds-p-left_medium slds-p-top_large" padding="around-tiny" size="3">      
+                    <div onkeyup={handleKeyUp}>
+                    <lightning-input
+                        name="enter-search"
+                        label="Search by case ID"
+                        placeholder="Search by case ID"
+                        value={queryTerm}
+                        type="search"
+                        onchange={handleSearch}
+                    ></lightning-input>
+                    </div>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-tiny" class="slds-p-top_large" size="3">
+                <div class="slds-p-left_medium">
+                    <template if:true={showAssignmentSource}>
+                        <lightning-combobox 
+                            name="radioGroup"
+                            label="Assignment Source"
+                            options={assignmentSource}
+                            value={currentAssignmentSource}
+                            onchange={handleWorkSourceChange}>
+                        </lightning-combobox>
+                    </template>              
+                </div>
+            </lightning-layout-item>    
+
+            <lightning-layout-item class="slds-p-right_medium slds-m-top_xx-large" padding="around-tiny" alignment-bump="left">
+                <lightning-button-icon 
+                    class="slds-float_right"
+                    icon-name="utility:refresh" 
+                    size="medium" 
+                    onclick={handleRefresh}
+                    alternative-text={assignmentsFetchTime}>
+                </lightning-button-icon>
+                <span class="slds-clearfix slds-float_right slds-m-around_x-small" >{assignmentsFetchTime}</span>
+            </lightning-layout-item>   
+
+            <lightning-layout-item padding="around-tiny" flexibility="auto">           
+                <div class="slds-p-around_medium" style="height:300px;">
+                    <lightning-datatable
+                        key-field="pxRefObjectInsName"
+                        data={assignments}
+                        onrowselection={handleRowSelection}
+                        sorted-direction={sortDirection}
+                        sorted-by={sortedBy}
+                        columns={columns}
+                        max-row-selection="1"
+                        onsort={handleSort}
+                        is-loading={tableLoadingState}
+                        enable-infinite-loading="true"
+                        onloadmore={loadMoreData}
+                        onresize={resize}>
+                    </lightning-datatable>
+                </div>
+            </lightning-layout-item>
+            <lightning-layout-item flexibility="auto" padding="around-tiny">
+                <div class="page-footer page-section">
+                </div>
+            </lightning-layout-item>
+            </lightning-layout>
+        </div>
+</template>

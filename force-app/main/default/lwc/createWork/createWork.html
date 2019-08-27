@@ -1,0 +1,39 @@
+<template>
+        <template if:true={showSpinner}>
+            <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+        </template>    
+        <lightning-card title={state.title} icon-name={state.icon}>
+            <template if:true={isCreateWork}>
+                <lightning-layout multiple-rows="true">
+                    <lightning-layout-item class="inlinemiddle" flexibility="auto">
+                        <template for:each={caseTypes} for:item="caseType" for:index="index">
+                            <div class="pointer" key={caseType.name}>
+                                <lightning-avatar                                     
+                                    class="slds-m-left_large slds-m-right_large slds-m-bottom_tiny"
+                                    fallback-icon-name="utility:new"
+                                    size="large"
+                                    data-index={index}
+                                    data-flow={caseType.name}
+                                    onclick={handleClick}                              
+                                >                                
+                                </lightning-avatar>
+                                <p class="avatar">{caseType.name}</p>
+                            </div>
+                        </template>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+            <template if:false={isCreateWork}>
+                <c-case-container 
+                    onworkoblectclosed={handleWorkObjectClosed}
+                    onchangetitle={handleChangeTitle}
+                    assignment-id={state.assignmentId}
+                    case-id={state.caseId}
+                    new-harness-view={newHarnessView}
+                    case-type={caseType}
+                    process-id={processId}
+                    url={url}
+                ></c-case-container>
+            </template>
+        </lightning-card>
+    </template>
