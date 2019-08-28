@@ -12,7 +12,8 @@ export default class CreateWork extends LightningElement {
     cardTitle = "Create Case";
     cardIcon = "utility:record_create";
     cardMode = "createWork";
-    
+    numberOfCols = 4;;
+
     @track newHarnessView;
 
     @track
@@ -29,8 +30,13 @@ export default class CreateWork extends LightningElement {
     @api user;
     @api password;
     @api authentication;
+    @api flows;
     @api processId;
     @api caseType;
+    @track rows = [[]];
+    @track lastRow = [];
+    @track lastColSize = 1;
+    @track align = "center";
 
     email;
     name;
@@ -54,12 +60,41 @@ export default class CreateWork extends LightningElement {
         }
     }
 
+
+    get keyRow() {
+        return apiService.generateKey("tr");
+    } 
+
+    get key() {
+        return apiService.generateKey("k");
+    } 
+
     async init() {
         try {
             this.state.operator = await apiService.getDataPage(this.url, "D_OperatorID");
             let types = await apiService.getCaseTypes(this.url);
             if (types && types.caseTypes && types.caseTypes.length > 0){
-                this.caseTypes = types.caseTypes.filter(caseType => caseType.CanCreate === "true");
+                types.caseTypes = types.caseTypes.filter(caseType => caseType.CanCreate === "true" && (!this.flows || this.flows.toUpperCase().includes(caseType.name.toUpperCase())));
+            }
+
+            const types2D = [];
+            types.caseTypes.forEach((type, idx) => {
+                if (idx % this.numberOfCols === 0) types2D.push([]); 
+                types2D[types2D.length - 1].push(type)
+            });
+
+            if (types2D.length > 1) {
+                this.align = "space";
+                this.rows = types2D.slice(0, types2D.length - 1);
+            } else {
+                this.align = "center";
+                this.rows = types2D;                
+            }
+            if (types2D.length > 1 && types2D[types2D.length - 1].length !== 4) {
+                let lastRow = types2D.slice(types2D.length - 1)[0];
+                let lastColSize = (4 - lastRow.length) * 3;
+                this.lastRow = lastRow;
+                this.lastColSize = lastColSize;
             }
         } catch (err) {
             apiService.showError(err, this);
