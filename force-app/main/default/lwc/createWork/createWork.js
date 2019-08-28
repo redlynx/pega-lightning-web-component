@@ -73,8 +73,13 @@ export default class CreateWork extends LightningElement {
         try {
             this.state.operator = await apiService.getDataPage(this.url, "D_OperatorID");
             let types = await apiService.getCaseTypes(this.url);
+            
+            if (this.flows) {
+                this.flows = this.flows.toUpperCase();
+                this.flows = this.flows.split(",");
+            }
             if (types && types.caseTypes && types.caseTypes.length > 0){
-                types.caseTypes = types.caseTypes.filter(caseType => caseType.CanCreate === "true" && (!this.flows || this.flows.toUpperCase().includes(caseType.name.toUpperCase())));
+                types.caseTypes = types.caseTypes.filter(caseType => caseType.CanCreate === "true" && (!this.flows || this.flows.includes(caseType.name.toUpperCase())));
             }
 
             const types2D = [];
@@ -82,6 +87,8 @@ export default class CreateWork extends LightningElement {
                 if (idx % this.numberOfCols === 0) types2D.push([]); 
                 types2D[types2D.length - 1].push(type)
             });
+
+            this.caseTypes = types.caseTypes;
 
             if (types2D.length > 1) {
                 this.align = "space";
