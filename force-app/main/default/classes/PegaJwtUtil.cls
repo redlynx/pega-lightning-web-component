@@ -1,10 +1,19 @@
 public with sharing class PegaJwtUtil {
     @AuraEnabled(cacheable=true)
-    public static String generateJWT(String sub) {
-        String certificateName = 'your_sales_force_certificate_name';  
-        String iss = 'client_id_from_pega';  
-        String clientSecret= 'client_secret_from_pega';  
-        String aud = 'https://your_pega_server/prweb/PRRestService/oauth2/v1/token';
+    public static String generateJWT(String sub, String url) {
+        JWT_Settings__mdt jwtSetting = [
+                SELECT Audience__c,
+                    Certificate_Name__c,
+                    Client_Secret__c,
+                    Issuer__c
+                FROM JWT_Settings__mdt
+                WHERE Id__c = :url
+            ];
+
+        String certificateName = jwtSetting.Certificate_Name__c;
+        String iss = jwtSetting.Issuer__c;
+        String clientSecret= jwtSetting.Client_Secret__c;
+        String aud = jwtSetting.Audience__c;
 
         Auth.JWT jwt = new Auth.JWT();
         jwt.setAud(aud);
@@ -14,7 +23,10 @@ public with sharing class PegaJwtUtil {
         String name = UserInfo.getFirstName() + ' ' + UserInfo.getLastName();
         jwt.setAdditionalClaims(new Map<String, Object>{'name' => name});
         Auth.JWS jws = new Auth.JWS(jwt, certificateName);
-        String jwtToken = jws.getCompactSerialization();
+        String jwtToken = '';
+        if (!Test.isRunningTest()) {
+            jwtToken = jws.getCompactSerialization();
+        }
         
         Http http = new Http();
         HttpRequest request = new HttpRequest();
