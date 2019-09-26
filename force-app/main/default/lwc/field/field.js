@@ -132,7 +132,7 @@ export default class Field extends LightningElement {
     connectedCallback() { }
 
     renderedCallback() {    
-      if (this.registerComponent) {
+      if (!this.hasRendered && this.registerComponent) {
         //
         // TODO: handle all inputs
         //
