@@ -539,6 +539,7 @@ export default class WorkObject extends LightningElement {
         if (this.isCheckbox(reference)) {
             value = evt.target.checked;
         } else if (this.isDateTime(reference)) {
+            value = field.value;
             if (value) {
                 value = value.replace(/[:-]/g, "");
                 value = value.replace(/Z/, " GMT");
@@ -549,7 +550,10 @@ export default class WorkObject extends LightningElement {
         ReferenceHelper.addFieldData(reference, value, this.caseData);
         let eventHandler = this.generateEventHandler(field);
         this.componentRegistry[reference].forEach(itm => {
-            if(itm !== evt.target && itm.setValue) itm.setValue(value);
+            if(itm !== evt.target && itm.setValue) {
+                if (!this.isDateTime(reference)) itm.setValue(value);
+                else itm.setValue(evt.target.value);
+            }
         });
         if (!eventHandler) return;
         eventHandler(field);		

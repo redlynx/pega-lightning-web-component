@@ -438,7 +438,13 @@ export default class Field extends LightningElement {
     }
 
     get value() {
+      if (this.fieldObject) {
+        if (this.isDateTime()) {
+          return this.fieldObject.value.replace(" GMT", "Z");
+        } 
         return apiService.sanitizeHTML(this.fieldObject.value);
+      }
+      return "";
     }
 
     set value(val) {
