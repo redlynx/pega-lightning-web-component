@@ -100,14 +100,19 @@ To configure JWT Bearer Token authentication in Pega, follow these steps:
   * Create a Token Processing Profile rule  
   
 To configure JWT Bearer Token authentication in Salesforce, follow these steps:  
-  * Go to Setup -> Certificate and Key Management  
+  * Go to Setup -> Certificate and Key Management
   * Import the keystore from the step above into Salesforce  
-  * Open `force-app⁩/main⁩/default⁩/classes/PegaJwtUtil.cls` and configure the following variables:  
+  * Go to Setup -> Custom Metadata Types
+  * Open JWT Settings and click records
+  * Add a new record and complete the following fields
   ```
-    * String certificateName = 'your_sales_force_certificate_name';  
-    * String iss = 'client_id_from_pega';  
-    * String clientSecret= 'client_secret_from_pega';  
-    * String aud = 'https://your_pega_server/prweb/PRRestService/oauth2/v1/token';  
+    * Label
+    * JWT Settings Name
+    * Audience: Access token endpoint from your OAuth Client Registration e.g. https://your_pega_server/prweb/PRRestService/oauth2/v1/token
+    * pega_sfdc: certificate name from the step above
+    * Client Secret: Client Secret from OAuth 2.0 Client Registration
+    * ID: Pega URL used to configure the component (from step 12 above)
+    * Issuer: Client ID from OAuth 2.0 Client Registration
   ```  
 ## Application Structure
 

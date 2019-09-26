@@ -7,8 +7,10 @@ package.xml
 # LWC configuration files
 **/jsconfig.json
 **/.eslintrc.json
-**/.sfdx
 
+**/.sfdx/**
+pega-lwc/.sfdx/**
+pega-lwc/out/**
 
 # LWC Jest
 **/__tests__/**

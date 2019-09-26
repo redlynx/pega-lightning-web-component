@@ -222,6 +222,7 @@ export default class WorkObject extends LightningElement {
 
     async refreshAssignment(content) {
         try {
+            this.componentRegistry = {};
             let view = await apiService.performRefreshOnAssignment(this.url, this.assignmentId, this.currentAction, content);
             this.view = view;
             let caseData = ReferenceHelper.getInitialValuesFromView(this.view.view);
@@ -570,7 +571,8 @@ export default class WorkObject extends LightningElement {
             let assignment = await apiService.performAction(this.url, this.assignmentId, this.currentAction, content);
             this.assignmentId = assignment.nextAssignmentID;
             let workObject = await apiService.getCase(this.url, this.caseId);
-            this.workObject = workObject;            
+            this.workObject = workObject;          
+            this.componentRegistry = {};  
             if (this.assignmentId) {
                 return this.getAssignment();
             } else if (assignment.nextPageID) {
