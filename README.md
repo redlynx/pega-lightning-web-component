@@ -79,6 +79,8 @@ Get a Salesforce developer account then set up your Salesforce DX: `https://trai
 18. Refresh the page to view my-assignments component.  
 19. Enable Salesforce Change Data Capture for Salesforce Opportunity entity to be able to use opportunity-demo component  
 
+Optional: follow Salesforce instructions: https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_build_man_pack.htm to package the application.
+
 ## Basic Usage
 
 To login to Cable Connect sample application, you can use any of the following credentials:  
