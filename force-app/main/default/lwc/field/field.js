@@ -144,7 +144,7 @@ export default class Field extends LightningElement {
         this.value = this.fieldObject.value;
         if (this.fieldObject.control && (this.isDropdown() || this.isAutoComplete())) {
           this.selectedOption = this.value;
-          if (this.dropdownOptions.length === 0) {
+          if (this.dropdownOptions.length === 0 && this.getWorkObject) {
               dataService.setDropdownOptions(this.url, this.fieldObject, this.getWorkObject(), this, options => {this.dropdownOptions = options});
           }
         } else if (this.fieldObject.control && this.isDateTime()) {
