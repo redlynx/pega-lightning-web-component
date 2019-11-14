@@ -75,7 +75,7 @@ function clear(url) {
 }
 
 function generateAccessToken(url, sub) {
-    return generateJWT({ sub })
+    return generateJWT({ sub,  url })
         .then(accessToken => {
             systemsMap[url].authHeader = "Bearer " + accessToken;
             return accessToken;

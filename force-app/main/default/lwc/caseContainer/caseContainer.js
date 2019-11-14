@@ -355,8 +355,10 @@ export default class WorkObject extends LightningElement {
                 let val;
                 let fullPath = this.expandRelativePath(pair.name);
                 if (pair.valueReference) {
-                    val = this.getPropertyValue(pair.valueReference.reference);
-                    if (!val) val = apiService.sanitizeHTML(pair.valueReference.lastSavedValue);
+                    val = this.getPropertyValue(pair.valueReference.reference);                    
+                    if (!val || val === pair.valueReference.reference) {
+                        val = apiService.sanitizeHTML(pair.valueReference.lastSavedValue);
+                    }
                 } else {
                     val = this.getPropertyValue(pair.value);                    
                 }
@@ -539,7 +541,7 @@ export default class WorkObject extends LightningElement {
         if (this.isCheckbox(reference)) {
             value = evt.target.checked;
         } else if (this.isDateTime(reference)) {
-            value = field.value;
+            if (field.value) value = field.value;
             if (value) {
                 value = value.replace(/[:-]/g, "");
                 value = value.replace(/Z/, " GMT");
