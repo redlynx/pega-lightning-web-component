@@ -229,8 +229,8 @@ export default class Field extends LightningElement {
     }    
 
     get radiogroupOptions() {
-      if (this.fieldObject.control.modes) {
-       return this.fieldObject.control.modes[0].options.map(option => {
+      if (this.fieldObject.control.modes && this.fieldObject.control.modes[0].options) {
+        return this.fieldObject.control.modes[0].options.map(option => {
           return { 
               label: option.value, 
               value: option.key

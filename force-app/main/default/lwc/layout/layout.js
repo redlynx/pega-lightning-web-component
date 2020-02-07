@@ -3,7 +3,7 @@ import { apiService } from 'c/service';
 // import { url } from 'inspector';
 
 export default class Layout extends LightningElement {
-    @api layoutObject;
+    @api layoutObject = {};
     @api registerComponent;
     @api fieldChangedHandler;
     @api fieldClickedHandler;
@@ -38,7 +38,6 @@ export default class Layout extends LightningElement {
     }    
 
     get tableHeight() {
-        debugger
         let height = 120;
         if (this.layoutObject 
             && this.layoutObject.rows
@@ -88,11 +87,11 @@ export default class Layout extends LightningElement {
         supportedLayouts.add(Layout.layoutTypes.GRID);
         supportedLayouts.add(Layout.layoutTypes.DYNAMIC);
 
-        return !supportedLayouts.has(this.layoutObject.groupFormat); 
+        return this.layoutObject.groups && !supportedLayouts.has(this.layoutObject.groupFormat); 
     }
 
     get isInlineMiddle() {
-        return this.layoutObject.groupFormat === Layout.layoutTypes.INLINE_MIDDLE;
+        return this.layoutObject.groups && this.layoutObject.groupFormat === Layout.layoutTypes.INLINE_MIDDLE;
     }
 
     get isDouble() {
@@ -100,7 +99,7 @@ export default class Layout extends LightningElement {
     }
 
     get isDynamic() {
-        return this.layoutObject.groupFormat === Layout.layoutTypes.DYNAMIC;
+        return this.layoutObject.rows && this.layoutObject.groupFormat === Layout.layoutTypes.DYNAMIC;
     }    
 
     get isTriple() {
@@ -116,7 +115,7 @@ export default class Layout extends LightningElement {
     }    
 
     get isGrid() {
-        return this.layoutObject.groupFormat === Layout.layoutTypes.GRID;
+        return this.layoutObject.rows && this.layoutObject.groupFormat === Layout.layoutTypes.GRID;
     } 
 
     @api
