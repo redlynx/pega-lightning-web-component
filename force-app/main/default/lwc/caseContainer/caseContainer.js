@@ -99,9 +99,14 @@ export default class WorkObject extends LightningElement {
                 this.caseData = caseData;
                 this.template.querySelector('c-view').setView(this.view.view);
                 this.showSpinner = false;          
+                //
+                // Disable pyCaseDetails for 8.4 
+                //
+                /*
                 this.caseDetails = await apiService.getView(this.url, this.caseId, "pyCaseDetails");
                 let modal = this.template.querySelector('c-modal-dialog');
                 modal.setView(this.caseDetails);
+                */
             }
             return assignment;
         } catch (error) {
