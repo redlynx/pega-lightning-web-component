@@ -1,59 +1,37 @@
 {
-    "compilerOptions": {
-        "baseUrl": ".",
-        "paths": {
-            "c/assignmentList": [
-                "assignmentList/assignmentList.js"
-            ],
-            "c/caseContainer": [
-                "caseContainer/caseContainer.js"
-            ],
-            "c/createWork": [
-                "createWork/createWork.js"
-            ],
-            "c/field": [
-                "field/field.js"
-            ],
-            "c/getNextWork": [
-                "getNextWork/getNextWork.js"
-            ],
-            "c/group": [
-                "group/group.js"
-            ],
-            "c/layout": [
-                "layout/layout.js"
-            ],
-            "c/modalDialog": [
-                "modalDialog/modalDialog.js"
-            ],
-            "c/myAssignments": [
-                "myAssignments/myAssignments.js"
-            ],
-            "c/opportunityDemo": [
-                "opportunityDemo/opportunityDemo.js"
-            ],
-            "c/pubsub": [
-                "pubsub/pubsub.js"
-            ],
-            "c/referenceHelper": [
-                "referenceHelper/referenceHelper.js"
-            ],
-            "c/service": [
-                "service/service.js"
-            ],
-            "c/view": [
-                "view/view.js"
-            ]
-        },
-        "experimentalDecorators": true
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "c/assignmentList": ["assignmentList/assignmentList.js"],
+      "c/caseContainer": ["caseContainer/caseContainer.js"],
+      "c/createWork": ["createWork/createWork.js"],
+      "c/getNextWork": ["getNextWork/getNextWork.js"],
+      "c/group": ["group/group.js"],
+      "c/layout": ["layout/layout.js"],
+      "c/modalDialog": ["modalDialog/modalDialog.js"],
+      "c/myAssignments": ["myAssignments/myAssignments.js"],
+      "c/nextBestAction": ["nextBestAction/nextBestAction.js"],
+      "c/offer": ["offer/offer.js"],
+      "c/offerButton": ["offerButton/offerButton.js"],
+      "c/pubsub": ["pubsub/pubsub.js"],
+      "c/referenceHelper": ["referenceHelper/referenceHelper.js"],
+      "c/service": ["service/service.js"],
+      "c/view": ["view/view.js"],
+      "c/field": ["field/field.js"],
+      "c/mashup": ["mashup/mashup.js"],
+      "c/createWorkFromRecord": [
+        "createWorkFromRecord/createWorkFromRecord.js"
+      ],
+      "c/errorPanel": ["errorPanel/errorPanel.js"],
+      "c/modal": ["modal/modal.js"]
     },
-    "include": [
-        "**/*",
-        "../../../../.sfdx/typings/lwc/**/*.d.ts"
-    ],
-    "typeAcquisition": {
-        "include": [
-            "jest"
-        ]
-    }
+    "experimentalDecorators": true
+  },
+  "include": ["**/*", "../../../../.sfdx/typings/lwc/**/*.d.ts"],
+  "typeAcquisition": {
+    "include": ["jest"]
+  },
+  "paths": {
+    "c/*": ["*"]
+  }
 }

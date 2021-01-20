@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="PegaLWC">
+    <apiVersion>45.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Create Case From Salesforce Record</masterLabel>
+    <description>Create a Pega case from a Salesforce record</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <property name="url" label="DX-API endpoint" description="Pega DX-API endpoint" placeholder="Enter Pega DX-API endpoint" type="String" required="true" default="https://lab5429.lab.pega.com/prweb/api/v1/"/>
+            <property name="authentication" description="Basic authentication is provided for demo purposes, it should never be used for production" label="Authentication type" datasource="Basic,JWT Bearer" type="String" required="true" default=""/>
+            <property name="user" label="Operator ID" placeholder="Enter User ID" type="String" required="false" default="admin.cableco"/>
+            <property name="password" label="Operator password" placeholder="Enter Password" required="false" type="String" default="pega"/>
+            <property name="mode" label="Mode" datasource="Create and Review,Review" type="String" required="true" default="Create and Review"/>
+            <property name="flows" label="Flows" description="Comma separated flow IDs, leave blank to include all flows" placeholder="Comma separated flow IDs, leave blank to include all flows" required="false" type="String"/>
+            <!-- <objects>
+                <object>Account</object>
+                <object>Opportunity</object>
+                <object>Contact</object>
+                <object>Lead</object>
+                <object>Campaign</object>
+                <object>Case</object>
+                <object>Asset</object>
+                <object>Contract</object>
+            </objects> --></targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

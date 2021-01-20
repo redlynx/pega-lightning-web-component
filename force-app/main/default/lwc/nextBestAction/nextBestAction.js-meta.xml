@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="PegaLWC">
+    <apiVersion>45.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Next Best Action Demo</masterLabel>
+    <description>Demo for next best action</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage, lightning__HomePage, lightning__RecordPage">
+            <property name="url" label="DX-API endpoint" description="Pega DX-API endpoint" placeholder="Enter Pega DX-API endpoint" type="String" required="true" default="https://lab5429.lab.pega.com/prweb/api/v1/"/>
+            <property name="authentication" label="Authentication type" description="Basic authentication is provided for demo purposes, it should never be used for production" datasource="Basic,JWT Bearer" type="String" required="true" default=""/>
+            <property name="user" label="Operator ID" placeholder="Enter User ID" type="String" required="false" default="admin.cableco"/>
+            <property name="password" label="Operator password" placeholder="Enter Password" required="false" type="String" default="pega"/>
+            <property name="nbaDataPage" label="Offers datapage" placeholder="Next Best Action Data Page" required="true" type="String" default="D_CustomerOffers"/>
+            <property name="caseTypeId" label="Accept offer flow class name" placeholder="Enter case class" type="String" required="false" default="O1SPYR-DigExp-Work-CaseFromRecord"/>
+            <property name="processId" label="Accept offer flow name" placeholder="Enter process ID" type="String" required="false" default="pyStartCase"/>
+            <property name="caseDisplayMode" label="Display mode" datasource="Mashup,Lightning" type="String" required="true" default="Lightning"/>
+            <property name="mashupUrl" label="Mashup URL" placeholder="Enter Mashup URL" type="String" required="false"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

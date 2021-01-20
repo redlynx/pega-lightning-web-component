@@ -1,0 +1,85 @@
+<template>
+  <template if:true={showSpinner}>
+    <lightning-spinner
+      alternative-text="Loading"
+      size="large"
+    ></lightning-spinner>
+  </template>
+  <lightning-card icon-name={state.icon} title={state.title}>
+    <template if:true={isOffersMode}>
+      <lightning-layout>
+        <lightning-layout-item padding="around-medium">
+          <div onkeyup={handleKeyUp}>
+            <lightning-input
+              name="enter-search"
+              label="Customer ID"
+              onchange={handleSearch}
+              type="search"
+            ></lightning-input>
+          </div>
+        </lightning-layout-item>
+      </lightning-layout>
+
+      <template if:false={showOffers}>
+        <lightning-layout vertical-align="center" horizontal-align="space">
+          <p>{noOfferMsg}</p>
+        </lightning-layout>
+      </template>
+      <template if:true={showOffers}>
+        <div class="slds-carousel">
+          <div class="slds-carousel__stage">
+            <template for:each={nbaData} for:item="offer" for:index="idx">
+              <c-offer
+                select-handler={handleChoice}
+                key={offer.ID}
+                current-idx={selectedIdx}
+                offer={offer}
+                index={idx}
+              ></c-offer>
+            </template>
+            <ul class="slds-carousel__indicators" role="tablist">
+              <template for:each={nbaData} for:item="offer" for:index="idx">
+                <c-offer-button
+                  onselectoffer={handleSelect}
+                  index={idx}
+                  key={offer.ID}
+                  current-idx={selectedIdx}
+                ></c-offer-button>
+              </template>
+            </ul>
+          </div>
+        </div>
+      </template>
+    </template>
+
+    <template if:false={isOffersMode}>
+      <template if:true={isMashupMode}>
+        <iframe width="100%" height="600px" src={mashupUrl}></iframe>
+        <lightning-layout
+          multiple-rows="true"
+          horizontal-align="space"
+          vertical-align="center"
+        >
+          <lightning-layout-item padding="around-small">
+            <lightning-button
+              onclick={handleWorkObjectClosed}
+              label="Close"
+            ></lightning-button>
+          </lightning-layout-item>
+        </lightning-layout>
+      </template>
+      <template if:false={isMashupMode}>
+        <c-case-container
+          onworkoblectclosed={handleWorkObjectClosed}
+          onchangetitle={handleChangeTitle}
+          assignment-id={state.assignmentId}
+          case-id={state.caseId}
+          new-harness-view={newHarnessView}
+          case-type={caseTypeId}
+          process-id={processId}
+          url={url}
+        ></c-case-container>
+      </template>
+    </template>
+  </lightning-card>
+</template>

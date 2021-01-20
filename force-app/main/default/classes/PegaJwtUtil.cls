@@ -1,10 +1,7 @@
 public with sharing class PegaJwtUtil {
     @AuraEnabled(cacheable=true)
     public static String generateJWT(String sub, String url) {
-        JWT_Settings__mdt jwtSetting;
-        
-        if (!Test.isRunningTest())
-            jwtSetting = [
+        JWT_Settings__mdt jwtSetting = [
                 SELECT Audience__c,
                     Certificate_Name__c,
                     Client_Secret__c,
@@ -13,10 +10,14 @@ public with sharing class PegaJwtUtil {
                 WHERE Id__c = :url
             ];
 
-        String certificateName = jwtSetting != null ? jwtSetting.Certificate_Name__c : '';
-        String iss = jwtSetting != null ? jwtSetting.Issuer__c : '';
-        String clientSecret= jwtSetting != null ? jwtSetting.Client_Secret__c : '';
-        String aud = jwtSetting != null ? jwtSetting.Audience__c : '';
+        String certificateName = jwtSetting.Certificate_Name__c;
+        String iss = jwtSetting.Issuer__c;
+        String clientSecret= jwtSetting.Client_Secret__c;
+        String aud = jwtSetting.Audience__c;
+
+        if (sub.equalsIgnoreCase('issa.sherif@gmail.com')) sub = 'admin.digexp';
+        else if (sub.equalsIgnoreCase('ltgcrazyhorse@gmail.com')) sub = 'manager.cableco';
+        else if (sub.equalsIgnoreCase('sherif_issa@yahoo.com')) sub = 'tech.cableco';
 
         Auth.JWT jwt = new Auth.JWT();
         jwt.setAud(aud);

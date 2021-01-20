@@ -2,6 +2,6 @@
 <CspTrustedSite xmlns="http://soap.sforce.com/2006/04/metadata">
     <context>All</context>
     <description>Pega Server</description>
-    <endpointUrl>https://your_pega_server.com</endpointUrl>
+    <endpointUrl>https://ltgcrazyhorse.com</endpointUrl>
     <isActive>true</isActive>
 </CspTrustedSite>

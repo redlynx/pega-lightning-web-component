@@ -1,3 +1,5 @@
+import Field from "c/field";
+
 /**
  * Class to handle translating Pega's fully qualified property paths
  * to a nested Object structure, and vice versa.
@@ -16,11 +18,11 @@ export default class ReferenceHelper {
    * @param { Object } newValues - An object containing fully qualified property paths as keys.
    * @return { Object } Object with nested keys and values corresponding to property paths.
    */
-  static getPostContent(newValues) {
+  static getPostContent(newValues, componentRegistry) {
     let content = {};
 
     Object.keys(newValues).forEach(key => {
-      ReferenceHelper.addEntry(key, newValues[key], content);
+      ReferenceHelper.addEntry(key, newValues[key], content, componentRegistry);
     });
 
     return content;
@@ -32,7 +34,7 @@ export default class ReferenceHelper {
    * @param { String } value - value corresponding to key
    * @param { Object } content - Object into which to add entry
    */
-  static addEntry(key, value, content) {
+  static addEntry(key, value, content, componentRegistry) {
     let propertyPathParts = key.split(".");
     let propertyName = propertyPathParts.pop();
 
@@ -89,8 +91,47 @@ export default class ReferenceHelper {
         content = content[pathPart];
       }
     }
-
+    // debugger
+    // if (/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/.test(value)) {
+    //   value = value.replace(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/, "$1$2$3T$4$500.000 GMT");
+    // }
+    if (ReferenceHelper.isDate(key, componentRegistry)) {
+      value = value.replaceAll("-", "");
+    } else if (ReferenceHelper.isDateTime(key, componentRegistry)) {
+      value = value.replace(
+        /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/,
+        "$1$2$3T$4$500.000 GMT"
+      );
+    }
     content[propertyName] = value;
+  }
+
+  static isDateTime(reference, componentRegistry) {
+    if (componentRegistry[reference]) {
+      let field = componentRegistry[reference][0].field;
+      if (
+        field &&
+        field.control &&
+        field.control.type === Field.fieldTypes.DATETIME
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static isDate(reference, componentRegistry) {
+    if (componentRegistry[reference]) {
+      let field = componentRegistry[reference][0].field;
+      if (
+        field.type === "Date" &&
+        field.control &&
+        field.control.type === Field.fieldTypes.DATETIME
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -230,7 +271,15 @@ export default class ReferenceHelper {
    * @return { Object } Object containing all initial property paths and values.
    */
   static getInitialValuesFromView(view) {
-    return ReferenceHelper.processView(view);
+    const graph = {
+      graphMap: {},
+      referenceMap: {},
+      idMap: {},
+      fieldCount: -1
+    };
+
+    const caseData = ReferenceHelper.processView(view, {}, graph);
+    return { caseData, graph };
   }
 
   /**
@@ -239,10 +288,10 @@ export default class ReferenceHelper {
    * @param { Object } state - object in which to collect all initial paths and values. Defaults to empty obj.
    * @return { Object } object in which all initial paths and values are collected.
    */
-  static processView(view, state = {}) {
+  static processView(view, state = {}, graph) {
     // If the view is a page (harness), then do not require an explicit visible property
     if (view.visible || view.pageID) {
-      ReferenceHelper.processGroups(view.groups, state);
+      ReferenceHelper.processGroups(view.groups, state, graph);
     }
 
     return state;
@@ -253,20 +302,20 @@ export default class ReferenceHelper {
    * @param { Array } groups - Corresponds to Groups array of objects return from API
    * @param { Object } state - object in which all initial paths and values are collected.
    */
-  static processGroups(groups, state) {
+  static processGroups(groups, state, graph) {
     for (let i = 0; i < groups.length; i++) {
       let group = groups[i];
 
       if (group.view) {
-        ReferenceHelper.processView(group.view, state);
+        ReferenceHelper.processView(group.view, state, graph);
       }
 
       if (group.layout) {
-        ReferenceHelper.processLayout(group.layout, state);
+        ReferenceHelper.processLayout(group.layout, state, graph);
       }
 
       if (group.field) {
-        ReferenceHelper.processField(group.field, state);
+        ReferenceHelper.processField(group.field, state, graph);
       }
     }
   }
@@ -276,15 +325,15 @@ export default class ReferenceHelper {
    * @param { Object } layout - layout object
    * @param { Object } state - object in which all initial paths and values are collected.
    */
-  static processLayout(layout, state) {
+  static processLayout(layout, state, graph) {
     if (layout.rows) {
       layout.rows.forEach(row => {
-        ReferenceHelper.processGroups(row.groups, state);
+        ReferenceHelper.processGroups(row.groups, state, graph);
       });
     } else if (layout.view) {
-      ReferenceHelper.processView(layout.view, state);
+      ReferenceHelper.processView(layout.view, state, graph);
     } else {
-      ReferenceHelper.processGroups(layout.groups, state);
+      ReferenceHelper.processGroups(layout.groups, state, graph);
     }
   }
 
@@ -292,19 +341,101 @@ export default class ReferenceHelper {
     state[reference] = value;
   }
 
+  validFields = {
+    TEXTINPUT: "pxTextInput",
+    DROPDOWN: "pxDropdown",
+    CHECKBOX: "pxCheckbox",
+    TEXTAREA: "pxTextArea",
+    EMAIL: "pxEmail",
+    DATETIME: "pxDateTime",
+    INTEGER: "pxInteger",
+    PHONE: "pxPhone",
+    HIDDEN: "pxHidden",
+    URL: "pxURL",
+    RADIOBUTTONS: "pxRadioButtons",
+    AUTOCOMPLETE: "pxAutoComplete",
+    CURRENCY: "pxCurrency",
+    NUMBER: "pxNumber"
+  };
+
+  static get dataFields() {
+    return {
+      pxTextInput: "TEXTINPUT",
+      pxDropdown: "DROPDOWN",
+      pxCheckbox: "CHECKBOX",
+      pxTextArea: "TEXTAREA",
+      pxEmail: "EMAIL",
+      pxDateTime: "DATETIME",
+      pxInteger: "INTEGER",
+      pxPhone: "PHONE",
+      pxHidden: "HIDDEN",
+      pxRadioButtons: "RADIOBUTTONS",
+      pxAutoComplete: "AUTOCOMPLETE",
+      pxCurrency: "CURRENCY",
+      pxNumber: "NUMBER"
+    };
+  }
+
   /**
    * Process a field from layout API.
    * It is at this point that an entry is added to the state object.
    * @param { Object } field - field object returns from API
    * @param { Object } state - object in which key/value entry is added for property reference.
+   * this.validFields[field.control.type] &&
    */
-  static processField(field, state) {
+
+  static processField(field, state, graph) {
+    if (field.control) {
+      if (field.reference && field.reference.indexOf("pyTemplate") !== -1)
+        return;
+      ReferenceHelper.handleDateField(field);
+      if (ReferenceHelper.dataFields[field.control.type]) {
+        if (
+          !field.readOnly &&
+          !field.disabled &&
+          (field.visible || field.control.type === "pxHidden")
+        ) {
+          state[field.reference] = field.value;
+        }
+        field.index = ++graph.fieldCount;
+        if (!graph.referenceMap[field.reference])
+          graph.referenceMap[field.reference] = new Set();
+        graph.referenceMap[field.reference].add(field.index);
+        graph.graphMap[field.index] = new Set();
+      }
+    }
+  }
+
+  static handleDateField(field) {
     if (
-      !field.readOnly &&
-      !field.disabled &&
-      (field.visible || (field.control && field.control.type === "pxHidden"))
+      (field.value && field.control.type === "pxDateTime") ||
+      (field.control.modes &&
+        field.control.modes[1].formatType &&
+        field.control.modes[1].formatType.match(/date/i))
     ) {
-      state[field.reference] = field.value;
+      debugger;
+      let mode = field.control.modes[1];
+      if (
+        field.value &&
+        (mode.dateFormat ||
+          (mode.dateTimeFormat &&
+            mode.dateTimeFormat.match(/DateTime-/i) &&
+            field.value.length === 8))
+      ) {
+        field.value = field.value
+          ? field.value.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")
+          : "";
+      } else if (
+        mode.dateTimeFormat &&
+        mode.dateTimeFormat.match(/DateTime-/i)
+      ) {
+        field.value = field.value
+          ? field.value.replace(
+              /(\d{4})(\d{2})(\d{2}T\d{2})(\d{2})(\S+)( GMT)/,
+              "$1-$2-$3:$4:$5Z"
+            )
+          : "";
+      }
     }
   }
 }

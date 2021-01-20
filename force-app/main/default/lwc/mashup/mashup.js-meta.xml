@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>48.0</apiVersion>
+    <isExposed>false</isExposed>
+
+    <isExposed>true</isExposed>
+    <masterLabel>Pega Mashup Container</masterLabel>
+    <description>Lightning container for Pega mashup</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage, lightning__HomePage, lightning__RecordPage">
+            <property name="mashupUrl" label="Mashup URL" description="Pega Mashup URL" placeholder="Enter Pega Mashup URL" type="String" required="true" default="https://ltgcrazyhorse.com/prweb/PRAuth/salesforce/!IF/?pzuiactionzzz=CXtpbn1sWVRmTWJmY3B6NnQ4bkZib3h2Y2JsTGVGM0d4NGxNWnEzenR3azVVSDhHRGtKdEd6R0MzaExOYUhCSEJSSXlhSU1qUllBRDJ2QUN6MG96aHJzY2o0REk3Y2dWaFZMRWExaUpjTmFDbjhXODgzbFVHRURhWTNuYW5GRDV2RXB1Sk1rU0xra0JMeEJEcnE3UW9mWm1rU3ZrRmtMTm5mUUc0Y3lkZitqd0VGa2M5bm9OZnAyTVJYcmZVT1pGVkdUeHZSdmU1NkRoajZ0ajZPYU0wa01hem5qMVVGYUpMbU9wc0wvb29JUlU5OTlTM2JzOXFraTRHam1JWTdqNUhJb1JIb3I4WVdCYUNCTFNKMktjTzlnZGRqRnNVV1N1ajlxVE9PVE1wL2ZzeDQ4WT0%3D*" />
+            <property name="mashupHeight" label="Mashup height (in pixels)" placeholder="Enter Mashup Height in pixels" type="String" required="true" default="900px" />
+            <!-- <property name="params" placeholder="Enter Mashup parameters" type="String" required="false" /> -->
+        </targetConfig>
+    </targetConfigs>
+
+</LightningComponentBundle>

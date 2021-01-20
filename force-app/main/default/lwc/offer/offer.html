@@ -1,0 +1,28 @@
+<template>
+    <template if:true={showOffer}>
+        <div key={name} class="slds-carousel__panel" role="tabpanel" aria-hidden="false" aria-labelledby="indicator-id-01">
+            <div class="slds-carousel__panel-action" tabindex="0">
+                    <lightning-layout vertical-align="center" horizontal-align="space">
+                        <lightning-layout-item  padding="around-small">
+                            <div class="slds-carousel__image">
+                                <img style="max-width:200px" src={offer.Image} alt={offer.Name} />
+                            </div>
+                        </lightning-layout-item>
+                </lightning-layout>
+                <div class="slds-carousel__content">
+                    <h2 class="slds-carousel__content-title">{offer.Name}</h2>
+                    <br/>                    
+                    <p>{offer.Description}</p>
+                </div>
+                <lightning-layout vertical-align="center" horizontal-align="space">
+                    <lightning-layout-item>
+                        <lightning-button data-name="reject" onclick={handleClick} label="No Thanks"></lightning-button>
+                    </lightning-layout-item>                      
+                    <lightning-layout-item padding="around-small">
+                        <lightning-button data-name="accept" onclick={handleClick} label="Accept"></lightning-button>
+                    </lightning-layout-item>                 
+                </lightning-layout>
+            </div>
+        </div>
+    </template>
+</template>
