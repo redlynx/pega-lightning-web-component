@@ -188,11 +188,9 @@ export default class CreateWorkFromRecord extends LightningElement {
 
     let idx = evt.target.dataset.index;
     let caseType = this.caseTypes[idx];
-    if (
-      caseType &&
-      caseType.startingProcesses &&
-      caseType.startingProcesses.length > 0 &&
-      (caseType.startingProcesses[0].requiresFieldsToCreate === true || caseType.startingProcesses[0].requiresFieldsToCreate === "true")
+    if (caseType.startingProcesses && caseType.startingProcesses.length > 0 &&
+      (caseType.startingProcesses[0].requiresFieldsToCreate === true ||
+        caseType.startingProcesses[0].requiresFieldsToCreate === "true")
     ) {
       this.showNewHarness(caseType);
     } else {
@@ -247,7 +245,10 @@ export default class CreateWorkFromRecord extends LightningElement {
           RecordId: this.recordId
         };
       }
-      const processID = caseType.startingProcesses && caseType.startingProcesses.length > 0 ? caseType.startingProcesses[0].ID : "pyStartCase";
+      const processID =
+        caseType.startingProcesses && caseType.startingProcesses.length > 0
+          ? caseType.startingProcesses[0].ID
+          : "pyStartCase";
       let body = {
         caseTypeID: caseType.ID,
         processID,

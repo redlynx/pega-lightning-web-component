@@ -102,7 +102,7 @@ export default class CreateWork extends LightningElement {
         flows = this.flows.split(/\s*,\s*/);
         types = types.filter(
           caseType =>
-          (caseType.CanCreate === true || caseType.CanCreate === "true") &&
+            (caseType.CanCreate === true || caseType.CanCreate === "true") &&
             (!this.flows || flows.includes(caseType.name.toUpperCase()))
         );
       }
@@ -164,11 +164,9 @@ export default class CreateWork extends LightningElement {
     let idx = evt.target.dataset.index;
     let caseType = this.caseTypes[idx];
     this.state.caseUrl = caseType.caseUrl;
-    if (
-      caseType &&
-      caseType.startingProcesses &&
-      caseType.startingProcesses.length > 0 &&
-      (caseType.startingProcesses[0].requiresFieldsToCreate === true || caseType.startingProcesses[0].requiresFieldsToCreate === "true")
+    if (caseType.startingProcesses && caseType.startingProcesses.length > 0 &&
+      (caseType.startingProcesses[0].requiresFieldsToCreate === true || 
+       caseType.startingProcesses[0].requiresFieldsToCreate === "true")
     ) {
       this.showNewHarness(caseType);
     } else {
@@ -215,7 +213,10 @@ export default class CreateWork extends LightningElement {
     this.showSpinner = true;
     try {
       let content = {};
-      const processID = caseType.startingProcesses && caseType.startingProcesses.length > 0 ? caseType.startingProcesses[0].ID : "pyStartCase";
+      const processID =
+        caseType.startingProcesses && caseType.startingProcesses.length > 0
+          ? caseType.startingProcesses[0].ID
+          : "pyStartCase";
       let body = {
         caseTypeID: caseType.ID,
         processID,
