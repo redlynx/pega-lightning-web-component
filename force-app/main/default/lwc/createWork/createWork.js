@@ -180,7 +180,7 @@ export default class CreateWork extends LightningElement {
       this.newHarnessView = newHarness.creation_page;
       this.state.mode = "newharness";
       this.caseType = caseType.ID;
-      this.processId = caseType.startingProcesses[0].ID;
+      this.processId = caseType.startingProcesses[0].ID ? caseType.startingProcesses[0].ID : "pyStartCase";
       this.showSpinner = false;
     } catch (err) {
       debugger;
@@ -204,6 +204,8 @@ export default class CreateWork extends LightningElement {
   }
 
   async createCase(caseType) {
+    debugger;
+
     this.showSpinner = true;
     try {
       let content = {};
