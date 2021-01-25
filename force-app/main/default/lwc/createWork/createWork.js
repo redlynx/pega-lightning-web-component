@@ -12,7 +12,8 @@ export default class CreateWork extends LightningElement {
   cardTitle = "Create Case";
   cardIcon = "utility:record_create";
   cardMode = "createWork";
-  numberOfCols = 4;
+  numberOfCols = 6;
+  colSize = 2;
 
   @track newHarnessView;
   @track
@@ -38,7 +39,6 @@ export default class CreateWork extends LightningElement {
   @track rows = [[]];
   @track lastRow = [];
   @track lastColSize = 1;
-  @track align = "center";
 
   email;
   name;
@@ -63,7 +63,7 @@ export default class CreateWork extends LightningElement {
   }
 
   async init() {
-    // await apiService.initComponentLocal(this);
+    await apiService.initComponentLocal(this);
     if (this.email && this.authentication) {
       await apiService.initComponent(this);
       await this.getCaseTypes();
@@ -74,19 +74,23 @@ export default class CreateWork extends LightningElement {
     this.init();
   }
 
+  processCaseType(caseType, types, idx) {
+    if (caseType.CanCreate === true || caseType.CanCreate === "true") {
+      caseType.caseUrl = this.endpoints[idx];
+      if (caseType.startingProcesses && caseType.startingProcesses.length > 0) {
+        if (caseType.startingProcesses[0].name) caseType.name = caseType.startingProcesses[0].name;
+      }
+      types.push(caseType);
+    }
+  }
+
   async getCaseTypes() {
-    debugger;
     let types = [];
     for (let i = 0; i < this.endpoints.length; i++) {
       try {
         let currentTypes = await apiService.getCaseTypes(this.endpoints[i]);
         if (currentTypes && currentTypes.caseTypes) {
-          currentTypes.caseTypes.forEach(caseType => {
-            if (caseType.CanCreate === true || caseType.CanCreate === "true") {
-              caseType.caseUrl = this.endpoints[i];
-              types.push(caseType);
-            }
-          });
+          currentTypes.caseTypes.forEach(caseType => this.processCaseType(caseType, types, i));
         }
       } catch (error) {
         this.errorMessages[this.endpoints[i]] = `${
@@ -101,32 +105,24 @@ export default class CreateWork extends LightningElement {
         this.flows = this.flows.toUpperCase();
         flows = this.flows.split(/\s*,\s*/);
         types = types.filter(
-          caseType =>
-            (caseType.CanCreate === true || caseType.CanCreate === "true") &&
-            (!this.flows || flows.includes(caseType.name.toUpperCase()))
+          caseType => !this.flows || flows.includes(caseType.name.toUpperCase())
         );
       }
-
       const types2D = [];
       types.forEach((type, idx) => {
         if (idx % this.numberOfCols === 0) types2D.push([]);
         types2D[types2D.length - 1].push(type);
       });
-
       this.caseTypes = types;
 
       if (types2D.length > 1) {
-        this.align = "space";
         this.rows = types2D.slice(0, types2D.length - 1);
       } else {
-        this.align = "center";
         this.rows = types2D;
       }
-      if (types2D.length > 1 && types2D[types2D.length - 1].length !== 4) {
+      if (types2D.length > 1 && types2D[types2D.length - 1].length !== this.numberOfCols) {
         let lastRow = types2D.slice(types2D.length - 1)[0];
-        let lastColSize = (4 - lastRow.length) * 3;
         this.lastRow = lastRow;
-        this.lastColSize = lastColSize;
       }
     }
   }
@@ -157,7 +153,6 @@ export default class CreateWork extends LightningElement {
   }
 
   handleClick(evt) {
-    this.showSpinner = true;
     this.state.assignmentId = null;
     this.state.caseId = null;
     this.errorMessages = {};
@@ -175,14 +170,13 @@ export default class CreateWork extends LightningElement {
   }
 
   async showNewHarness(caseType) {
-    this.showSpinner = true;
+    // this.showSpinner = true;
     try {
       let newHarness = await apiService.getCaseTypeDetails(
         caseType.caseUrl,
         caseType.ID
       );
       newHarness.creation_page.visible = true;
-
       this.newHarnessView = newHarness.creation_page;
       this.state.mode = "newharness";
       this.caseType = caseType.ID;
@@ -205,7 +199,7 @@ export default class CreateWork extends LightningElement {
       } else {
         apiService.showError(err, this);
       }
-      this.showSpinner = false;
+      // this.showSpinner = false;
     }
   }
 
@@ -213,15 +207,15 @@ export default class CreateWork extends LightningElement {
     this.showSpinner = true;
     try {
       let content = {};
-      const processID =
-        caseType.startingProcesses && caseType.startingProcesses.length > 0
-          ? caseType.startingProcesses[0].ID
-          : "pyStartCase";
       let body = {
         caseTypeID: caseType.ID,
-        processID,
         content
       };
+
+      if (caseType.startingProcesses && 
+        caseType.startingProcesses.length > 0 && caseType.startingProcesses[0].ID) {
+        body.processID = caseType.startingProcesses[0].ID;
+      }
       let newCase = await apiService.createCase(caseType.caseUrl, body);
       if (newCase.nextAssignmentID) {
         this.state.assignmentId = newCase.nextAssignmentID;

@@ -3,7 +3,7 @@
     <apiVersion>45.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Create Case From Salesforce Record</masterLabel>
-    <description>Create a Pega case from a Salesforce record</description>
+    <description>Create case from record</description>
     <targets>
         <target>lightning__RecordPage</target>
     </targets>

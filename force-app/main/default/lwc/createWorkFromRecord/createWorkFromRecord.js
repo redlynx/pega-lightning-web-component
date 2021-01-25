@@ -106,6 +106,7 @@ export default class CreateWorkFromRecord extends LightningElement {
         currentTypes.caseTypes.forEach(caseType => {
           if (caseType.CanCreate === true || caseType.CanCreate === "true") {
             caseType.caseUrl = this.url;
+            if (caseType.startingProcesses[0].name) caseType.name = caseType.startingProcesses[0].name;
             types.push(caseType);
           }
         });
@@ -245,15 +246,16 @@ export default class CreateWorkFromRecord extends LightningElement {
           RecordId: this.recordId
         };
       }
-      const processID =
-        caseType.startingProcesses && caseType.startingProcesses.length > 0
-          ? caseType.startingProcesses[0].ID
-          : "pyStartCase";
       let body = {
         caseTypeID: caseType.ID,
-        processID,
         content
       };
+
+      if (caseType.startingProcesses && 
+        caseType.startingProcesses.length > 0 && caseType.startingProcesses[0].ID) {
+        body.processID = caseType.startingProcesses[0].ID;
+      }
+      
       let newCase = await apiService.createCase(this.url, body);
       if (this.recordId) sessionStorage.setItem(this.recordId, newCase.ID);
 

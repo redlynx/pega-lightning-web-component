@@ -71,6 +71,7 @@ export default class CaseContainer extends LightningElement {
   }
 
   render() {
+    debugger;
     if (this.confirmHarnessMode) return confirm;
     if (this.newHarnessView) return newHarness;
     return perform;
@@ -133,7 +134,7 @@ export default class CaseContainer extends LightningElement {
 
   addToGraph(reference, field, component, setValue) {
     if (
-      !this.graph.graphMap[field.index] ||
+      !this.graph || !this.graph.graphMap[field.index] ||
       !field.control.modes ||
       field.control.modes.length === 0
     )
