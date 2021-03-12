@@ -7,7 +7,7 @@ import {
   getFieldValue
 } from "lightning/uiRecordApi";
 import { CurrentPageReference } from "lightning/navigation";
-import { fireEvent } from "c/pubsub";
+import { fireEvent } from "c/pegapubsub";
 
 import USER_ID from "@salesforce/user/Id";
 import NAME_FIELD from "@salesforce/schema/User.Name";
@@ -254,6 +254,8 @@ export default class CreateWorkFromRecord extends LightningElement {
       if (caseType.startingProcesses && 
         caseType.startingProcesses.length > 0 && caseType.startingProcesses[0].ID) {
         body.processID = caseType.startingProcesses[0].ID;
+      } else {
+        body.processID = "";
       }
       
       let newCase = await apiService.createCase(this.url, body);

@@ -13,7 +13,7 @@
       "c/nextBestAction": ["nextBestAction/nextBestAction.js"],
       "c/offer": ["offer/offer.js"],
       "c/offerButton": ["offerButton/offerButton.js"],
-      "c/pubsub": ["pubsub/pubsub.js"],
+      "c/pubsub": ["pegapubsub/pubsub.jsb.js"],
       "c/referenceHelper": ["referenceHelper/referenceHelper.js"],
       "c/service": ["service/service.js"],
       "c/view": ["view/view.js"],

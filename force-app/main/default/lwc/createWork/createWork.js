@@ -2,7 +2,7 @@ import { LightningElement, track, api, wire } from "lwc";
 import { apiService } from "c/service";
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import { CurrentPageReference } from "lightning/navigation";
-import { fireEvent } from "c/pubsub";
+import { fireEvent } from "c/pegapubsub";
 
 import USER_ID from "@salesforce/user/Id";
 import NAME_FIELD from "@salesforce/schema/User.Name";
@@ -53,7 +53,6 @@ export default class CreateWork extends LightningElement {
   })
   async wireuser({ error, data }) {
     if (error) {
-      debugger;
       apiService.showError(error, this);
     } else if (data) {
       this.email = getFieldValue(data, EMAIL_FIELD);
@@ -63,7 +62,7 @@ export default class CreateWork extends LightningElement {
   }
 
   async init() {
-    await apiService.initComponentLocal(this);
+    // await apiService.initComponentLocal(this);
     if (this.email && this.authentication) {
       await apiService.initComponent(this);
       await this.getCaseTypes();
@@ -86,18 +85,37 @@ export default class CreateWork extends LightningElement {
 
   async getCaseTypes() {
     let types = [];
-    for (let i = 0; i < this.endpoints.length; i++) {
-      try {
-        let currentTypes = await apiService.getCaseTypes(this.endpoints[i]);
+    const caseTypesPromiseList = this.endpoints.map(itm => apiService.getCaseTypes(itm));
+    const caseTypesPromiseResultList = await Promise.allSettled(caseTypesPromiseList);
+    debugger;
+    caseTypesPromiseResultList.forEach((itm, idx) => {
+      if (itm.status === "fulfilled") {
+        let currentTypes = itm.value;
         if (currentTypes && currentTypes.caseTypes) {
-          currentTypes.caseTypes.forEach(caseType => this.processCaseType(caseType, types, i));
+          currentTypes.caseTypes.forEach(caseType => this.processCaseType(caseType, types, idx));
         }
-      } catch (error) {
-        this.errorMessages[this.endpoints[i]] = `${
-          this.endpoints[i].split(/\//)[2]
+      } else {
+        debugger;
+        this.errorMessages[this.endpoints[idx]] = `${
+          this.endpoints[idx].split(/\//)[2]
         } is not responsing, please contact your system administrator.`;
       }
-    }
+    });
+
+    // for (let i = 0; i < this.endpoints.length; i++) {
+    //   try {
+    //     let currentTypes = await apiService.getCaseTypes(this.endpoints[i]);
+    //     if (currentTypes && currentTypes.caseTypes) {
+    //       currentTypes.caseTypes.forEach(caseType => this.processCaseType(caseType, types, i));
+    //     }
+    //   } catch (error) {
+    //     this.errorMessages[this.endpoints[i]] = `${
+    //       this.endpoints[i].split(/\//)[2]
+    //     } is not responsing, please contact your system administrator.`;
+    //   }
+    // }
+
+    //await Promise.allSettled( 
 
     let flows = [];
     if (types.length > 0) {
@@ -204,8 +222,6 @@ export default class CreateWork extends LightningElement {
   }
 
   async createCase(caseType) {
-    debugger;
-
     this.showSpinner = true;
     try {
       let content = {};
@@ -217,6 +233,8 @@ export default class CreateWork extends LightningElement {
       if (caseType.startingProcesses && 
         caseType.startingProcesses.length > 0 && caseType.startingProcesses[0].ID) {
         body.processID = caseType.startingProcesses[0].ID;
+      } else {
+        body.processID = "";
       }
       let newCase = await apiService.createCase(caseType.caseUrl, body);
       if (newCase.nextAssignmentID) {

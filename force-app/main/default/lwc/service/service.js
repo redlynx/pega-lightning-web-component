@@ -29,7 +29,8 @@ export const apiService = {
   clear,
   isInitialized,
   initComponent,
-  initComponentLocal
+  initComponentLocal,
+  attachFile
 };
 
 let endpoints = {
@@ -89,7 +90,6 @@ async function initComponentLocal(component) {
 }
 
 async function initComponent(component) {
-  debugger;
   if (component.authentication === "Basic") {
     if (component.user && component.password) component.email = component.user;
     else return false;
@@ -99,23 +99,45 @@ async function initComponent(component) {
 
   if (component.urls) {
     component.endpoints = component.urls.split(/\s*,\s*/);
-    for (let i = 0; i < component.endpoints.length; i++) {
-      try {
-        await init(
-          component.endpoints[i],
-          component.authentication,
-          component.email,
-          component.password
-        );
-        if (i === 0)
-          component.state.operator = await apiService.getDataPage(
-            component.endpoints[0],
-            "D_OperatorID"
-          );
-      } catch (err) {
-        showErrorMessage(genericErrorMsg, component);
-      }
+    const promiseList = component.endpoints.map(itm => init(
+      itm,
+      component.authentication,
+      component.email,
+      component.password
+    ));
+
+    const results = await Promise.allSettled(promiseList);
+    component.state.operator = await apiService.getDataPage(
+      component.endpoints[0],
+      "D_OperatorID"
+    );
+
+    let componentHasErrors = false;
+    results.forEach(itm => {
+        if (itm.status === "rejected") componentHasErrors = true
+      });
+
+    if (componentHasErrors) {
+      showErrorMessage(genericErrorMsg, component);
     }
+
+    // for (let i = 0; i < component.endpoints.length; i++) {
+    //   try {
+    //     await init(
+    //       component.endpoints[i],
+    //       component.authentication,
+    //       component.email,
+    //       component.password
+    //     );
+    //     if (i === 0)
+    //       component.state.operator = await apiService.getDataPage(
+    //         component.endpoints[0],
+    //         "D_OperatorID"
+    //       );
+    //   } catch (err) {
+    //     showErrorMessage(genericErrorMsg, component);
+    //   }
+    // }
   } else {
     await init(
       component.url,
@@ -144,10 +166,8 @@ function generateAccessToken(url, sub) {
     .then(accessToken => {
       systemsMap[url].authHeader = "Bearer " + accessToken;
       return accessToken;
-    })
-    .catch(err => {
+    }).catch(err => {
       debugger;
-      console.log(err);
     });
 }
 
@@ -174,7 +194,6 @@ function showErrorMessage(msg, component, mode = {}) {
 }
 
 function showError(err, component, mode = {}) {
-  debugger;
   let evt;
   if (typeof err === "string") {
     evt = new ShowToastEvent({
@@ -357,6 +376,43 @@ function getPage(url, caseId, pageId) {
 
 function getOperator(url) {
   return getDataPage(url, "D_OperatorID");
+}
+
+async function attachFile(url, caseId, file) {
+  let body = new FormData();
+  body.append("context", caseId);
+  body.append("content", file);
+
+  const res = await fetch(`${url}attachments/upload`, {
+      method: 'POST',
+      body,
+      headers: { authorization: "Basic YWRtaW4uZGlnZXhwOlNoYWJpN2E2NiQ=" },
+      redirect: 'follow',
+      credentials: "same-origin",
+    });
+
+  const responseData = await res.json();
+  const {ID} = responseData;
+    body = JSON.stringify({
+      "attachments": [
+        {
+          "type": "File",
+          "category": "File",
+          "name": file.name,
+          ID,
+        }
+      ]
+    });
+    
+  return fetch(`${url}cases/${caseId}/attachments`, {
+    method: 'POST',
+    body,
+    headers: {
+      authorization: "Basic YWRtaW4uZGlnZXhwOlNoYWJpN2E2NiQ="
+    },
+    redirect: 'follow',
+    credentials: "same-origin",
+  });    
 }
 
 function makeRequest(endpoint, method, data, etag) {

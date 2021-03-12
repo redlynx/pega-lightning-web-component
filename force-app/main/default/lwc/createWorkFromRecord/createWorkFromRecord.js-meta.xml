@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="PegaLWC">
     <apiVersion>45.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>Create Case From Salesforce Record</masterLabel>
+    <masterLabel>Create Case From Record</masterLabel>
     <description>Create case from record</description>
     <targets>
         <target>lightning__RecordPage</target>

@@ -1,6 +1,6 @@
 import { LightningElement, track, api, wire } from "lwc";
 import { apiService } from "c/service";
-import { registerListener, unregisterAllListeners } from "c/pubsub";
+import { registerListener, unregisterAllListeners } from "c/pegapubsub";
 import { CurrentPageReference } from "lightning/navigation";
 
 export default class AssignmentList extends LightningElement {
@@ -84,7 +84,7 @@ export default class AssignmentList extends LightningElement {
     unregisterAllListeners(this);
   }
 
-  renderedCallback() {}
+  renderedCallback() { }
 
   isDate(name, value) {
     if (value && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value))
@@ -159,28 +159,30 @@ export default class AssignmentList extends LightningElement {
 
   async getOtherWorkBaskets() {
     let otherWorkBaskets = [];
-    for (let i = 1; i < this.urls.length; i++) {
-      try {
-        let operator = await apiService.getDataPage(
-          this.urls[i],
-          "D_OperatorID"
-        );
-        if (operator.pyWorkbasket && operator.pyWorkbasket.length > 0) {
-          operator.pyWorkbasket.forEach((basket, idx) => {
-            otherWorkBaskets.push({
-              label: basket,
-              value: basket,
-              key: 10 ** i + idx,
-              url: this.urls[i]
+    
+    const workbasketPromiseList = this.endpoints.map(itm => apiService.getDataPage(itm, "D_OperatorID"));
+    const workbasketPromiseResultList = await Promise.allSettled(workbasketPromiseList);
+    workbasketPromiseResultList.forEach((itm, i) => {
+      if (i > 0) {
+        if (itm.status === "fulfilled") {
+          const operator = itm.value;
+          if (operator.pyWorkbasket && operator.pyWorkbasket.length > 0) {
+            operator.pyWorkbasket.forEach((basket, idx) => {
+              otherWorkBaskets.push({
+                label: basket,
+                value: basket,
+                key: 10 ** i + idx,
+                url: this.urls[i]
+              });
             });
-          });
+          }
+        } else {
+          this.errorMessages[this.endpoints[i]] = `${this.endpoints[i].split(/\//)[2]
+            } is not responsing, please contact your system administrator.`;
         }
-      } catch (error) {
-        this.errorMessages[this.urls[i]] = `${
-          this.urls[i].split(/\//)[2]
-        } is not responsing, please contact your system administrator.`;
       }
-    }
+    });
+
     return otherWorkBaskets;
   }
 
@@ -210,26 +212,31 @@ export default class AssignmentList extends LightningElement {
 
   async getWorkListAssignments() {
     let allAssignments = [];
-    for (let i = 0; i < this.urls.length; i++) {
+
+    const woorkListPromise = this.urls.map(itm => apiService.getWorkList(
+      itm,
+      this.worklistDataPage
+    ));
+    const woorkListPromiseResult = await Promise.allSettled(woorkListPromise);
+    woorkListPromiseResult.forEach((itm, i) => {
       try {
-        let assignmentsData = await apiService.getWorkList(
-          this.urls[i],
-          this.worklistDataPage
-        );
-        if (assignmentsData.pxResults && assignmentsData.pxResults.length > 0) {
-          assignmentsData.pxResults.forEach(assignment => {
-            assignment.caseUrl = this.urls[i];
-          });
-          this.buildHeaders(assignmentsData);
-          allAssignments = [...allAssignments, ...assignmentsData.pxResults];
+        if (itm.status === "fulfilled") {
+          const assignmentsData = itm.value;
+          if (assignmentsData.pxResults && assignmentsData.pxResults.length > 0) {
+            assignmentsData.pxResults.forEach(assignment => {
+              assignment.caseUrl = this.urls[i];
+            });
+            this.buildHeaders(assignmentsData);
+            allAssignments = [...allAssignments, ...assignmentsData.pxResults];
+          }
+        } else {
+          this.errorMessages[this.urls[i]] = `${this.urls[i].split(/\//)[2]
+            } is not responsing, please contact your system administrator.`;
         }
-      } catch (error) {
+      } catch (err) {
         debugger;
-        this.errorMessages[this.urls[i]] = `${
-          this.urls[i].split(/\//)[2]
-        } is not responsing, please contact your system administrator.`;
       }
-    }
+    });
     this.tableLoadingState = false;
     return allAssignments;
   }
@@ -463,7 +470,7 @@ export default class AssignmentList extends LightningElement {
     apiService.debounce(this.loadData, 300)();
   }
 
-  resize(evt) {}
+  resize(evt) { }
 
   @api
   set defaultWorkbasketColumns(cols) {

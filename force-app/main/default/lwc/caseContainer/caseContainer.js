@@ -6,7 +6,7 @@ import newHarness from "./new.html";
 import Field from "c/field";
 import ReferenceHelper from "c/referenceHelper";
 import { CurrentPageReference } from "lightning/navigation";
-import { fireEvent } from "c/pubsub";
+import { fireEvent } from "c/pegapubsub";
 
 export default class CaseContainer extends LightningElement {
   @api assignmentId;
@@ -71,7 +71,6 @@ export default class CaseContainer extends LightningElement {
   }
 
   render() {
-    debugger;
     if (this.confirmHarnessMode) return confirm;
     if (this.newHarnessView) return newHarness;
     return perform;
@@ -111,17 +110,8 @@ export default class CaseContainer extends LightningElement {
         );
         this.graph = graph;
         this.caseData = caseData;
-        debugger;
         this.template.querySelector("c-view").setView(this.view.view);
         this.showSpinner = false;
-        //
-        // Disable pyCaseDetails for 8.4
-        //
-        /*
-                this.caseDetails = await apiService.getView(this.url, this.caseId, "pyCaseDetails");
-                let modal = this.template.querySelector('c-modal-dialog');
-                modal.setView(this.caseDetails);
-                */
       }
       return assignment;
     } catch (error) {
@@ -195,7 +185,7 @@ export default class CaseContainer extends LightningElement {
     actions.shift();
     actions.unshift({ label: "Refresh", value: "Refresh" });
     this.actions = actions;
-    this.actions.push({ label: this.flowAction, value: this.flowAction });
+    this.actions.push({ label: this.assignment.actions[0].name, value: this.flowAction });
   };
 
   setStages = () => {
@@ -213,6 +203,10 @@ export default class CaseContainer extends LightningElement {
   };
 
   fireChangeTitleEvent = () => {
+    let action = this.currentAction;
+    if (this.assignment.actions && this.assignment.actions.length > 0) {
+      action = this.assignment.actions[0].name;
+    }
     const changeTitle = new CustomEvent("changetitle", {
       bubbles: true,
       detail: {
@@ -220,7 +214,7 @@ export default class CaseContainer extends LightningElement {
         caseId: this.caseId.split(" ")[1],
         assignmentId: this.assignmentId,
         caseKey: this.caseId,
-        action: this.currentAction
+        action
       }
     });
     this.dispatchEvent(changeTitle);
@@ -294,7 +288,6 @@ export default class CaseContainer extends LightningElement {
       let { caseData, graph } = ReferenceHelper.getInitialValuesFromView(
         this.view.view
       );
-      debugger;
       this.graph = graph;
       this.caseData = caseData;
       this.template.querySelector("c-view").setView(this.view.view);
@@ -407,7 +400,6 @@ export default class CaseContainer extends LightningElement {
   };
 
   handleFieldRefresh = (evt, actionData) => {
-    debugger;
     let postContent = ReferenceHelper.getPostContent(
       this.caseData,
       this.componentRegistry
@@ -450,7 +442,6 @@ export default class CaseContainer extends LightningElement {
   async handleCreateWork() {
     try {
       this.showSpinner = true;
-      debugger;
       let caseData = ReferenceHelper.getPostContent(
         this.caseData,
         this.componentRegistry
@@ -558,7 +549,6 @@ export default class CaseContainer extends LightningElement {
     if (property.charAt(0) === '"') {
       value = property.replace(/"/g, "");
     } else {
-      debugger;
       value = this.caseData[this.expandRelativePath(property)];
       if (valueReference && !value) {
         if (valueReference.lastSavedValue)
@@ -601,7 +591,6 @@ export default class CaseContainer extends LightningElement {
   isDate(reference) {
     if (this.componentRegistry[reference]) {
       let field = this.componentRegistry[reference][0].field;
-      debugger;
       if (
         field.type === "Date" &&
         field.control &&
@@ -627,9 +616,10 @@ export default class CaseContainer extends LightningElement {
     }
   }
 
+  
+
   handleFieldClicked = field => {
     if (!field) return;
-    debugger;
     const eventHandler = this.generateEventHandler(field);
     if (!eventHandler) return;
     eventHandler(field);
@@ -646,29 +636,27 @@ export default class CaseContainer extends LightningElement {
 
   handleFieldChanged = async (evt, field) => {
     if (!evt) return;
+
+    if (evt.target.files) {
+      debugger;
+      const file = evt.target.files[0];
+      try {
+        this.showSpinner = true;
+        await apiService.attachFile(this.url, this.caseId, file);
+      } catch (err) {
+        apiService.showError(err, this);
+      } finally {
+        this.showSpinner = false;
+      }
+      return;
+    }
+
     let reference = evt.target.dataset.reference;
     if (!reference) return;
     let value = evt.target.value;
     if (this.isCheckbox(reference)) {
-      debugger;
       value = evt.target.checked;
     }
-
-    // else if (this.isDate(reference)) {
-    //     debugger;
-    //     value = value.replaceAll("-", "");
-    // }
-
-    // if (!this.isCheckbox(reference) && !value) return;
-    debugger;
-
-    // for (let i = 0; i < this.componentRegistry[reference].length; i++) {
-    //     if (this.componentRegistry[reference][i].field.testID === field.testID) {
-    //         debugger;
-    //         this.componentRegistry[reference][i].component.showHelpMessageIfInvalid(false);
-    //         break;
-    //     }
-    // }
 
     if (field.index && this.graph.idMap[field.index].setValue) {
       this.graph.idMap[field.index].setValue(value);
@@ -711,7 +699,6 @@ export default class CaseContainer extends LightningElement {
           let options = await dependentField.setValue(dataParamValues);
           if (options && options.length > 0) {
             let val = options[0].value;
-            debugger;
             dependentField.setValue(val);
             this.caseData[dependentField.field.reference] = val;
             this.updateDependencies(
@@ -726,55 +713,10 @@ export default class CaseContainer extends LightningElement {
   }
 
   async callUpdateDependencies(field, _, value) {
-    setTimeout(() => this.updateDependencies(field, value, new Set()));
+    debugger;
+    // setTimeout(() => this.updateDependencies(field, value, new Set()));
+    this.updateDependencies(field, value, new Set())
   }
-
-  // async handleDependencies(reference, value) {
-  //     Object.keys(this.componentRegistry).forEach(key => {
-  //         this.componentRegistry[key].forEach(async itm => {
-  //             if (itm.field.control.modes) {
-  //                 let mode = itm.field.control.modes[0];
-  //                 if (mode.dataPageParams) {
-  //                     mode.dataPageParams.forEach(async param => {
-  //                         if (param.valueReference && param.valueReference.reference === reference) {
-  //                             let ref = itm.field.reference;
-  //                             if (this.componentRegistry[ref]) {
-  //                                 let options = await itm.setValue({refresh: true, paramKey: param.name, paramValue: value});
-  //                                 if (!this.processedDependencies[itm.field.testID]) {
-  //                                     let selectedOption = "NO_VALUE";
-  //                                     // if (options && options.length > 0) {
-  //                                     //     selectedOption = options[0].value;
-  //                                     // }
-  //                                     // selectedOption = "NO_VALUE";
-  //                                     this.componentRegistry[ref].forEach(item => {
-  //                                         if (item.field.testID != itm.field.testID) {
-  //                                             itm.setValue(selectedOption);
-  //                                         }
-  //                                     });
-  //                                     this.processedDependencies[itm.field.testID] = true;
-  //                                     this.handleDependencies(ref, selectedOption);
-  //                                 }
-  //                             }
-  //                             //
-  //                             // Alternatively, instead of traversing dependencies do a full refresh
-  //                             //
-  //                             // this.handleFieldRefresh();
-  //                         }
-  //                     });
-  //                 } else if (itm.field.reference === reference && value === "NO_VALUE") {
-  //                     debugger
-  //                     await itm.setValue("");
-  //                     this.processedDependencies[itm.field.testID] = true;
-  //                 }
-  //             }
-  //         });
-  //     })
-  // }
-
-  // async handleDependencies2() {
-  //     debugger
-  //     this.handleFieldRefresh();
-  // }
 
   reportError(reference, msg) {
     if (!reference || !msg) return;
@@ -797,7 +739,6 @@ export default class CaseContainer extends LightningElement {
       );
       let content = { content: postData };
       this.showSpinner = true;
-      debugger;
       let assignment = await apiService.performAction(
         this.url,
         this.assignmentId,
@@ -827,6 +768,7 @@ export default class CaseContainer extends LightningElement {
         );
       }
     } catch (err) {
+      debugger;
       this.showSpinner = false;
       if (!err.errors) {
         apiService.showError(err, this);
@@ -899,7 +841,6 @@ export default class CaseContainer extends LightningElement {
   }
 
   handleSubmit() {
-    debugger;
     const allFieldsValid = Object.values(this.componentRegistry).reduce(
       (isValid, itms) => {
         let componentValid = true;
@@ -971,10 +912,10 @@ export default class CaseContainer extends LightningElement {
   };
 
   async handleSave() {
+    debugger;
     this.validationErrors = [];
     try {
       this.showSpinner = true;
-      debugger;
       let postData = ReferenceHelper.getPostContent(
         this.caseData,
         this.componentRegistry
@@ -1004,22 +945,26 @@ export default class CaseContainer extends LightningElement {
             error.ValidationMessages.forEach(msg => {
               if (msg.Path) {
                 this.validationErrors.push(msg);
+                this.reportValidity(
+                  msg.Path,
+                  msg.ValidationMessage
+                );
               }
             });
           } else {
             debugger;
           }
         });
-        setTimeout(
-          () =>
-            this.validationErrors.forEach(validationErr => {
-              this.reportValidity(
-                validationErr.Path,
-                validationErr.ValidationMessage
-              );
-            }),
-          100
-        );
+        // setTimeout(
+        //   () =>
+        //     this.validationErrors.forEach(validationErr => {
+        //       this.reportValidity(
+        //         validationErr.Path,
+        //         validationErr.ValidationMessage
+        //       );
+        //     }),
+        //   100
+        // );
       }
     }
   }

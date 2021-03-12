@@ -15,6 +15,7 @@ import checkbox from "./checkbox.html";
 import link from "./link.html";
 import icon from "./icon.html";
 import paragraph from "./paragraph.html";
+import attachment from "./attachment.html";
 import displayText from "./displayText.html";
 import autocomplete from "./autocomplete.html";
 import labelField from "./label.html";
@@ -143,7 +144,7 @@ export default class Field extends LightningElement {
     };
   }
 
-  connectedCallback() {}
+  connectedCallback() { }
 
   renderedCallback() {
     if (!this.hasRendered && this.registerComponent) {
@@ -220,6 +221,7 @@ export default class Field extends LightningElement {
         return labelField;
       }
       if (this.fieldObject.visible) {
+        if (this.isAttachment()) return attachment;
         if (this.isParagraph()) return paragraph;
         if (this.isDisplayText() || this.readonly) return displayText;
         if (this.isTextInput()) return textInput;
@@ -466,9 +468,9 @@ export default class Field extends LightningElement {
     return [];
   }
 
-  decodeEntity(html) {
+  decodeEntity(text) {
     var txt = document.createElement("textarea");
-    txt.innerHTML = html;
+    txt.innerText = text;
     return txt.value;
   }
 
@@ -548,6 +550,12 @@ export default class Field extends LightningElement {
 
   isCaption() {
     return this.fieldObject.hasOwnProperty("captionFor");
+  }
+
+  isAttachment() {
+    return this.fieldObject.reference && 
+      this.fieldObject.control.type === "pxTextInput" &&
+      this.fieldObject.reference.startsWith("AttachRef.pxResults");
   }
 
   isTextInput() {

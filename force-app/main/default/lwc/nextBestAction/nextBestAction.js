@@ -4,7 +4,7 @@ import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import USER_ID from "@salesforce/user/Id";
 import NAME_FIELD from "@salesforce/schema/User.Name";
 import EMAIL_FIELD from "@salesforce/schema/User.Email";
-import { fireEvent } from "c/pubsub";
+import { fireEvent } from "c/pegapubsub";
 import { CurrentPageReference } from "lightning/navigation";
 
 const fields = [
