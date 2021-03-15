@@ -25,12 +25,13 @@ export const apiService = {
   showMessage,
   debounce,
   generateKey,
-  sanitizeHTML,
+  decodeHTML,
   clear,
   isInitialized,
   initComponent,
   initComponentLocal,
-  attachFile
+  attachFile,
+  logError
 };
 
 let endpoints = {
@@ -114,8 +115,8 @@ async function initComponent(component) {
 
     let componentHasErrors = false;
     results.forEach(itm => {
-        if (itm.status === "rejected") componentHasErrors = true
-      });
+      if (itm.status === "rejected") componentHasErrors = true
+    });
 
     if (componentHasErrors) {
       showErrorMessage(genericErrorMsg, component);
@@ -167,7 +168,7 @@ function generateAccessToken(url, sub) {
       systemsMap[url].authHeader = "Bearer " + accessToken;
       return accessToken;
     }).catch(err => {
-      debugger;
+      logError(err);
     });
 }
 
@@ -177,9 +178,14 @@ function generateKey(prefix = "k") {
     .substr(2, 9)}`;
 }
 
-function sanitizeHTML(value) {
-  const doc = new DOMParser().parseFromString(value, "text/html");
-  return doc.documentElement.textContent;
+function decodeHTML(value) {
+  if (value) {
+    if (value.indexOf("&") !== -1) {
+      const doc = new DOMParser().parseFromString(value, "text/html");
+      return doc.documentElement.textContent;
+    }
+  }  
+  return value;
 }
 
 function showErrorMessage(msg, component, mode = {}) {
@@ -229,7 +235,7 @@ function debounce(func, wait, immediate) {
     var context = this;
     var args = arguments;
 
-    var later = function() {
+    var later = function () {
       timeout = null;
       if (!immediate) func.apply(context, args);
     };
@@ -329,16 +335,16 @@ function performRefreshOnAssignment(url, id, actionID, body) {
 
   let endpoint = encodeURI(
     url +
-      endpoints.ASSIGNMENTS +
-      "/" +
-      id +
-      "/" +
-      endpoints.ACTIONS +
-      "/" +
-      actionID +
-      "/" +
-      endpoints.REFRESH +
-      refreshFor
+    endpoints.ASSIGNMENTS +
+    "/" +
+    id +
+    "/" +
+    endpoints.ACTIONS +
+    "/" +
+    actionID +
+    "/" +
+    endpoints.REFRESH +
+    refreshFor
   );
   return makeRequest(endpoint, "PUT", body);
 }
@@ -384,26 +390,26 @@ async function attachFile(url, caseId, file) {
   body.append("content", file);
 
   const res = await fetch(`${url}attachments/upload`, {
-      method: 'POST',
-      body,
-      headers: { authorization: "Basic YWRtaW4uZGlnZXhwOlNoYWJpN2E2NiQ=" },
-      redirect: 'follow',
-      credentials: "same-origin",
-    });
+    method: 'POST',
+    body,
+    headers: { authorization: "Basic YWRtaW4uZGlnZXhwOlNoYWJpN2E2NiQ=" },
+    redirect: 'follow',
+    credentials: "same-origin",
+  });
 
   const responseData = await res.json();
-  const {ID} = responseData;
-    body = JSON.stringify({
-      "attachments": [
-        {
-          "type": "File",
-          "category": "File",
-          "name": file.name,
-          ID,
-        }
-      ]
-    });
-    
+  const { ID } = responseData;
+  body = JSON.stringify({
+    "attachments": [
+      {
+        "type": "File",
+        "category": "File",
+        "name": file.name,
+        ID,
+      }
+    ]
+  });
+
   return fetch(`${url}cases/${caseId}/attachments`, {
     method: 'POST',
     body,
@@ -412,7 +418,11 @@ async function attachFile(url, caseId, file) {
     },
     redirect: 'follow',
     credentials: "same-origin",
-  });    
+  });
+}
+
+function logError(error) {
+  console.log(error);
 }
 
 function makeRequest(endpoint, method, data, etag) {

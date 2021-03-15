@@ -29,9 +29,9 @@
 
   <template if:true={isDynamic}>
     <template for:each={layoutObject.rows} for:item="row">
-      <lightning-layout multiple-rows="true" key={keyRow}>
+      <lightning-layout multiple-rows="true" key={key}>
         <template for:each={row.groups} for:index="index" for:item="group">
-          <lightning-layout-item size="12" key={keyCel}>
+          <lightning-layout-item size="12" key={key}>
             <c-group
               group-object={group}
               register-component={registerComponent}
@@ -79,13 +79,13 @@
             </thead>
             <tbody>
               <template for:each={layoutObject.rows} for:item="row">
-                <tr key={keyRow}>
+                <tr key={key}>
                   <template
                     for:each={row.groups}
                     for:index="index"
                     for:item="group"
                   >
-                    <td key={keyCel}>
+                    <td key={key}>
                       <!-- <div class="slds-truncate"> class="slds-hint-parent" -->
                       <c-group
                         group-object={group}

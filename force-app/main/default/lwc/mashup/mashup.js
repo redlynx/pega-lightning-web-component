@@ -11,12 +11,10 @@ export default class Mashup extends LightningElement {
   renderedCallback() {}
 
   reload() {
-    debugger;
     window.location.reload();
   }
 
   get url() {
-    debugger;
     return this.recordId
       ? this.mashupUrl + `&RecordId=${this.recordId}`
       : this.mashupUrl;

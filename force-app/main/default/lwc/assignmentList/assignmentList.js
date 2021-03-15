@@ -84,8 +84,6 @@ export default class AssignmentList extends LightningElement {
     unregisterAllListeners(this);
   }
 
-  renderedCallback() { }
-
   isDate(name, value) {
     if (value && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value))
       return true;
@@ -98,7 +96,11 @@ export default class AssignmentList extends LightningElement {
     return false;
   }
 
-  createHeader(useSavedHeaders = true) {
+  /**
+	 * @method
+	 * @param {boolean} type - use local storage to get assignment table headers
+	 */  
+  createHeader(useSavedHeaders=true) {
     let columnsSource;
     if (this.currentAssignmentSource === this.workLisyKW) {
       let savedColumns;
@@ -156,7 +158,7 @@ export default class AssignmentList extends LightningElement {
     this.setAvailableWorklistColumnsOptions();
     this.setSortByOptionsOptions();
   }
-
+   
   async getOtherWorkBaskets() {
     let otherWorkBaskets = [];
     
@@ -233,8 +235,8 @@ export default class AssignmentList extends LightningElement {
           this.errorMessages[this.urls[i]] = `${this.urls[i].split(/\//)[2]
             } is not responsing, please contact your system administrator.`;
         }
-      } catch (err) {
-        debugger;
+      } catch (error) {
+        apiService.logError(error);
       }
     });
     this.tableLoadingState = false;
@@ -257,8 +259,8 @@ export default class AssignmentList extends LightningElement {
         });
         workBasketAssignments = allAssignments.pxResults;
       }
-    } catch (error) {
-      debugger;
+    } catch (err) {
+      apiService.logError(err);
       this.errorMessages[
         source[0].url
       ] = `Couldn't get assignments from ${source[0].url}`;
@@ -330,7 +332,7 @@ export default class AssignmentList extends LightningElement {
       this.queryTerm = "";
       this.getAssignments();
     } catch (error) {
-      debugger;
+      apiService.logError(error);
       apiService.showError(error, this);
     }
   }
@@ -469,8 +471,6 @@ export default class AssignmentList extends LightningElement {
   loadMoreData() {
     apiService.debounce(this.loadData, 300)();
   }
-
-  resize(evt) { }
 
   @api
   set defaultWorkbasketColumns(cols) {

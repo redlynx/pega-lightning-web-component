@@ -439,7 +439,7 @@ export default class Field extends LightningElement {
             }
           }
           if (!val && !noParamValue) noParamValue = true;
-          else pageParams[param.name] = decodeURI(apiService.sanitizeHTML(val));
+          else pageParams[param.name] = apiService.decodeHTML(val);
         });
       }
       if (noParamValue) return [];
@@ -466,12 +466,6 @@ export default class Field extends LightningElement {
       this.dropdownOptions = [{ label: error, value: error }];
     }
     return [];
-  }
-
-  decodeEntity(text) {
-    var txt = document.createElement("textarea");
-    txt.innerText = text;
-    return txt.value;
   }
 
   convertDataPageToOptions(dataPage, propertyName, propertyPrompt) {
@@ -666,16 +660,19 @@ export default class Field extends LightningElement {
   }
 
   get label() {
-    if (this.hideLabel) return "";
+    if (this.hideLabel) return " ";
+    let labelValue;
     if (this.isButtton() || this.isLink() || this.isCheckbox()) {
       if (this.fieldObject.control && this.fieldObject.control.label) {
-        return apiService.sanitizeHTML(
+        labelValue = apiService.decodeHTML(
           this.getPropertyValue(this.fieldObject.control.label)
         );
       }
-      return apiService.sanitizeHTML(this.fieldObject.label);
+    } else {
+      labelValue = apiService.decodeHTML(this.fieldObject.label);
     }
-    return apiService.sanitizeHTML(this.fieldObject.label);
+
+    return labelValue && labelValue.length > 0 ? labelValue : " ";
   }
 
   get fieldLabel() {
@@ -683,7 +680,7 @@ export default class Field extends LightningElement {
       this.fieldObject.label && this.fieldObject.showLabel
         ? this.fieldObject.label
         : undefined;
-    if (label) return apiService.sanitizeHTML(label);
+    if (label) return apiService.decodeHTML(label);
     return label;
   }
 
@@ -737,7 +734,7 @@ export default class Field extends LightningElement {
         }
       }
     }
-    return apiService.sanitizeHTML(tooltip);
+    return apiService.decodeHTML(tooltip);
   }
 
   get richText() {

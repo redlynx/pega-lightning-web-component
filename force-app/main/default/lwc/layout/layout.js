@@ -64,7 +64,7 @@ export default class Layout extends LightningElement {
   }
 
   get keyCell() {
-    return apiService.generateKey("td");
+    return apiService.generateKey("");
   }
 
   get key() {

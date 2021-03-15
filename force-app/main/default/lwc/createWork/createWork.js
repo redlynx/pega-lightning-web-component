@@ -87,7 +87,6 @@ export default class CreateWork extends LightningElement {
     let types = [];
     const caseTypesPromiseList = this.endpoints.map(itm => apiService.getCaseTypes(itm));
     const caseTypesPromiseResultList = await Promise.allSettled(caseTypesPromiseList);
-    debugger;
     caseTypesPromiseResultList.forEach((itm, idx) => {
       if (itm.status === "fulfilled") {
         let currentTypes = itm.value;
@@ -95,10 +94,10 @@ export default class CreateWork extends LightningElement {
           currentTypes.caseTypes.forEach(caseType => this.processCaseType(caseType, types, idx));
         }
       } else {
-        debugger;
         this.errorMessages[this.endpoints[idx]] = `${
           this.endpoints[idx].split(/\//)[2]
         } is not responsing, please contact your system administrator.`;
+        apiService.logError(itm.reason);
       }
     });
 
@@ -188,7 +187,7 @@ export default class CreateWork extends LightningElement {
   }
 
   async showNewHarness(caseType) {
-    // this.showSpinner = true;
+    this.showSpinner = true;
     try {
       let newHarness = await apiService.getCaseTypeDetails(
         caseType.caseUrl,
@@ -201,7 +200,7 @@ export default class CreateWork extends LightningElement {
       this.processId = caseType.startingProcesses[0].ID ? caseType.startingProcesses[0].ID : "pyStartCase";
       this.showSpinner = false;
     } catch (err) {
-      debugger;
+      apiService.logError(err);
       if (
         err &&
         err.errors &&
@@ -217,8 +216,8 @@ export default class CreateWork extends LightningElement {
       } else {
         apiService.showError(err, this);
       }
-      // this.showSpinner = false;
     }
+    this.showSpinner = false;
   }
 
   async createCase(caseType) {
@@ -246,7 +245,7 @@ export default class CreateWork extends LightningElement {
         apiService.showMessage("Case created", `Case created`, this, "info");
       }
     } catch (err) {
-      debugger;
+      apiService.logError(err);
       if (
         err &&
         err.errors &&

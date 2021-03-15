@@ -35,6 +35,8 @@ export default class ReferenceHelper {
    * @param { Object } content - Object into which to add entry
    */
   static addEntry(key, value, content, componentRegistry) {
+    if (key === "refreshFor") return;
+    
     let propertyPathParts = key.split(".");
     let propertyName = propertyPathParts.pop();
 
@@ -413,7 +415,6 @@ export default class ReferenceHelper {
         field.control.modes[1].formatType &&
         field.control.modes[1].formatType.match(/date/i))
     ) {
-      debugger;
       let mode = field.control.modes[1];
       if (
         field.value &&

@@ -343,6 +343,7 @@ export default class CaseContainer extends LightningElement {
           }
           break;
         case CaseContainer.actionNames.REFRESH:
+          debugger;
           if (!hasFieldRefresh) {
             actionsList.push({
               handler: this.handleFieldRefresh,
@@ -355,12 +356,6 @@ export default class CaseContainer extends LightningElement {
         case CaseContainer.actionNames.PERFORM_ACTION:
           actionsList.push({
             handler: this.handlePerform,
-            data: actionData[i].actionProcess
-          });
-          break;
-        case CaseContainer.actionNames.RUN_SCRIPT:
-          actionsList.push({
-            handler: this.handleRunScript,
             data: actionData[i].actionProcess
           });
           break;
@@ -406,7 +401,7 @@ export default class CaseContainer extends LightningElement {
     );
     let content = { content: postContent };
     if (actionData && actionData.refreshFor) {
-      ReferenceHelper.addEntry("refreshFor", actionData.refreshFor, content);
+      ReferenceHelper.addEntry("refreshFor", actionData.refreshFor, content, this.componentRegistry);
     }
     return this.refreshAssignment(content);
   };
@@ -426,7 +421,7 @@ export default class CaseContainer extends LightningElement {
         } else {
           val = this.getPropertyValue(pair.value);
         }
-        ReferenceHelper.addEntry(fullPath, val, this.caseData);
+        ReferenceHelper.addEntry(fullPath, val, this.caseData, this.componentRegistry);
         let entries = this.componentRegistry[fullPath];
         if (entries) {
           entries.forEach(entry => entry.setValue(val));
@@ -470,38 +465,6 @@ export default class CaseContainer extends LightningElement {
     }
     this.showSpinner = false;
   }
-
-  handleRunScript = (evt, actionData) => {
-    let evalString = actionData.data.functionName + "(";
-    if (actionData.data.functionParameters) {
-      let paramString = actionData.data.functionParameters
-        .map(param => {
-          let val;
-          if (param.valueReference) {
-            val = this.getPropertyValue(
-              param.valueReference.reference,
-              param.valueReference
-            );
-            if (!val)
-              val = apiService.sanitizeHTML(
-                param.valueReference.lastSavedValue
-              );
-          } else {
-            val = this.getPropertyValue(param.value);
-          }
-          if (val === undefined || val === null) {
-            val = "null";
-          } else if (typeof val === "string") {
-            val = `"${val}"`;
-          }
-          return val;
-        }, this)
-        .join(", ");
-      evalString += paramString;
-    }
-    evalString += ");";
-    eval(evalString);
-  };
 
   handleOpenUrl = (evt, actionData) => {
     let url;
@@ -619,6 +582,7 @@ export default class CaseContainer extends LightningElement {
   
 
   handleFieldClicked = field => {
+    debugger;
     if (!field) return;
     const eventHandler = this.generateEventHandler(field);
     if (!eventHandler) return;

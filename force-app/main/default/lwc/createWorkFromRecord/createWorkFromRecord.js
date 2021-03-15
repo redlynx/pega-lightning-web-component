@@ -174,7 +174,7 @@ export default class CreateWorkFromRecord extends LightningElement {
         this.state.reviewCaseId = null;
       }
     } catch (error) {
-      debugger;
+      apiService.logError(error);
       this.state.title = this.cardTitle;
       this.template.querySelector("c-view").setView({});
       this.showSpinner = false;
@@ -217,7 +217,7 @@ export default class CreateWorkFromRecord extends LightningElement {
       this.caseType = caseType.ID;
       this.processId = caseType.startingProcesses[0].ID;
     } catch (err) {
-      debugger;
+      apiService.logError(err);
       if (
         err &&
         err.errors &&
@@ -272,7 +272,7 @@ export default class CreateWorkFromRecord extends LightningElement {
 
       await this.setRecordCaseId();
     } catch (err) {
-      debugger;
+      apiService.logError(err);
       apiService.showError(err, this);
     }
     this.showSpinner = false;
@@ -313,16 +313,11 @@ export default class CreateWorkFromRecord extends LightningElement {
           this.sfdcRecord.data.apiName + ".CaseId__c"
         );
         if (!recordCaseId) {
-          debugger;
           await this.setRecordCaseId();
-          // this.state.mode = this.assignmentMode;
           this.state.assignmentId = event.detail.assignmentId;
           this.state.caseId = event.detail.caseKey;
           this.state.recordHasCase = true;
-
           this.state.mode = this.processAssignmentMode;
-          // sessionStorage.setItem(this.recordId, this.state.caseId);
-          // fireEvent(this.pageRef, 'workObjectCreated', this.state.caseId);
         }
       }
     }
