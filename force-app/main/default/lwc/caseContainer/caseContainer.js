@@ -343,7 +343,6 @@ export default class CaseContainer extends LightningElement {
           }
           break;
         case CaseContainer.actionNames.REFRESH:
-          debugger;
           if (!hasFieldRefresh) {
             actionsList.push({
               handler: this.handleFieldRefresh,
@@ -416,7 +415,7 @@ export default class CaseContainer extends LightningElement {
         if (pair.valueReference) {
           val = this.getPropertyValue(pair.valueReference.reference);
           if (!val || val === pair.valueReference.reference) {
-            val = apiService.sanitizeHTML(pair.valueReference.lastSavedValue);
+            val = apiService.decodeHTML(pair.valueReference.lastSavedValue);
           }
         } else {
           val = this.getPropertyValue(pair.value);
@@ -476,7 +475,7 @@ export default class CaseContainer extends LightningElement {
           actionData.data.alternateDomain.urlReference
         );
       if (!url) {
-        url = apiService.sanitizeHTML(
+        url = apiService.decodeHTML(
           actionData.data.alternateDomain.urlReference.lastSavedValue
         );
       }
@@ -494,7 +493,7 @@ export default class CaseContainer extends LightningElement {
             param.valueReference
           );
         if (!parmValue)
-          parmValue = apiService.sanitizeHTML(
+          parmValue = apiService.decodeHTML(
             param.valueReference.lastSavedValue
           );
         return `${param.name}=${parmValue}`.replace(/"/g, "");
@@ -515,7 +514,7 @@ export default class CaseContainer extends LightningElement {
       value = this.caseData[this.expandRelativePath(property)];
       if (valueReference && !value) {
         if (valueReference.lastSavedValue)
-          return apiService.sanitizeHTML(valueReference.lastSavedValue);
+          return apiService.decodeHTML(valueReference.lastSavedValue);
         return null;
       }
     }
@@ -567,7 +566,6 @@ export default class CaseContainer extends LightningElement {
 
   handleCaseActions(evt) {
     const selectedAction = evt.target.value;
-    debugger;
     if (selectedAction === "Refresh") {
       if (!this.showSpinner) this.showSpinner = true;
       this.handleFieldRefresh().then(() => {
@@ -579,10 +577,7 @@ export default class CaseContainer extends LightningElement {
     }
   }
 
-  
-
   handleFieldClicked = field => {
-    debugger;
     if (!field) return;
     const eventHandler = this.generateEventHandler(field);
     if (!eventHandler) return;
@@ -594,15 +589,12 @@ export default class CaseContainer extends LightningElement {
     let value = evt.target.value;
     let reference = evt.target.dataset.reference;
     if (!reference) return;
-    debugger;
     ReferenceHelper.addFieldData(reference, value, this.caseData);
   };
 
   handleFieldChanged = async (evt, field) => {
     if (!evt) return;
-
     if (evt.target.files) {
-      debugger;
       const file = evt.target.files[0];
       try {
         this.showSpinner = true;
@@ -677,7 +669,6 @@ export default class CaseContainer extends LightningElement {
   }
 
   async callUpdateDependencies(field, _, value) {
-    debugger;
     // setTimeout(() => this.updateDependencies(field, value, new Set()));
     this.updateDependencies(field, value, new Set())
   }
@@ -732,8 +723,7 @@ export default class CaseContainer extends LightningElement {
         );
       }
     } catch (err) {
-      debugger;
-      this.showSpinner = false;
+      apiService.logError(err);      this.showSpinner = false;
       if (!err.errors) {
         apiService.showError(err, this);
       } else {
@@ -876,7 +866,6 @@ export default class CaseContainer extends LightningElement {
   };
 
   async handleSave() {
-    debugger;
     this.validationErrors = [];
     try {
       this.showSpinner = true;
@@ -916,7 +905,7 @@ export default class CaseContainer extends LightningElement {
               }
             });
           } else {
-            debugger;
+            apiService.logError(new Error("invalid state"));
           }
         });
         // setTimeout(

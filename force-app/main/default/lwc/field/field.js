@@ -18,7 +18,7 @@ import paragraph from "./paragraph.html";
 import attachment from "./attachment.html";
 import displayText from "./displayText.html";
 import autocomplete from "./autocomplete.html";
-import labelField from "./label.html";
+import captionField from "./caption.html";
 
 export default class Field extends LightningElement {
   @api fieldObject = {};
@@ -215,10 +215,12 @@ export default class Field extends LightningElement {
     return Promise.resolve(value);
   };
 
+
+
   render() {
     if (this.fieldObject) {
       if (this.isCaption()) {
-        return labelField;
+        return captionField;
       }
       if (this.fieldObject.visible) {
         if (this.isAttachment()) return attachment;
@@ -586,6 +588,10 @@ export default class Field extends LightningElement {
 
   get isVisible() {
     return this.fieldObject && this.fieldObject.visible;
+  }
+
+  get caption() {
+    return apiService.decodeHTML(this.fieldObject.value);
   }
 
   get iconName() {

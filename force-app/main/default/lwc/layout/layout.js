@@ -56,15 +56,7 @@ export default class Layout extends LightningElement {
   }
 
   get title() {
-    return apiService.sanitizeHTML(this.layoutObject.title);
-  }
-
-  get keyRow() {
-    return apiService.generateKey("tr");
-  }
-
-  get keyCell() {
-    return apiService.generateKey("");
+    return apiService.decodeHTML(this.layoutObject.title);
   }
 
   get key() {
