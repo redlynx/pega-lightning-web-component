@@ -35,8 +35,6 @@ export default class ReferenceHelper {
    * @param { Object } content - Object into which to add entry
    */
   static addEntry(key, value, content, componentRegistry) {
-    if (key === "refreshFor") return;
-    
     let propertyPathParts = key.split(".");
     let propertyName = propertyPathParts.pop();
 
@@ -97,14 +95,16 @@ export default class ReferenceHelper {
     // if (/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/.test(value)) {
     //   value = value.replace(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/, "$1$2$3T$4$500.000 GMT");
     // }
-    if (ReferenceHelper.isDate(key, componentRegistry)) {
-      value = value.replaceAll("-", "");
-    } else if (ReferenceHelper.isDateTime(key, componentRegistry)) {
-      value = value.replace(
-        /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/,
-        "$1$2$3T$4$500.000 GMT"
-      );
-    }
+    if (key !== "refreshFor") {
+      if (ReferenceHelper.isDate(key, componentRegistry)) {
+        value = value.replaceAll("-", "");
+      } else if (ReferenceHelper.isDateTime(key, componentRegistry)) {
+        value = value.replace(
+          /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/,
+          "$1$2$3T$4$500.000 GMT"
+        );
+      }
+    } 
     content[propertyName] = value;
   }
 

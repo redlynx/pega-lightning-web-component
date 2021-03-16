@@ -921,4 +921,8 @@ export default class CaseContainer extends LightningElement {
       }
     }
   }
+
+  get key() {
+    return apiService.generateKey("m");
+  }
 }

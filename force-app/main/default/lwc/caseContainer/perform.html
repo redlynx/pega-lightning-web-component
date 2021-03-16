@@ -33,9 +33,9 @@
             <lightning-button-menu label="Actions " alternative-text="Actions">
               <template for:each={actions} for:item="action">
                 <lightning-menu-item
+                  key={key}
                   label={action.label}
                   value={action.value}
-                  key={action.label}
                   onclick={handleCaseActions}
                 >
                 </lightning-menu-item>
