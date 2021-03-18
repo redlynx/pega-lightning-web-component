@@ -91,10 +91,6 @@ export default class ReferenceHelper {
         content = content[pathPart];
       }
     }
-    // debugger
-    // if (/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/.test(value)) {
-    //   value = value.replace(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[.]\d{3}(Z)$/, "$1$2$3T$4$500.000 GMT");
-    // }
     if (key !== "refreshFor") {
       if (ReferenceHelper.isDate(key, componentRegistry)) {
         value = value.replaceAll("-", "");

@@ -301,6 +301,44 @@ Form generation for assignments, views, and pages are all based on a nested UI d
   - openUrlInWindow
 - PageGroups and PageLists are supported.
 
+Supported icon surces:
+  styleclass
+  standardIcon
+  
+Suported icons and icons mapping:
+    pxIconAddItem: "utility:add",
+    pxIconAddNewWork: "utility:new",
+    pxIconAttachments: "utility:attach",
+    pxCancel: "utility:close",
+    pxIconDeleteItem: "utility:delete",
+    pxIconExpandCollapse: "utility:steps",
+    pxIconExplore: "utility:setting",
+    pxIconFinishAssignment: "utility:task",
+    pxIconHistory: "utility:rows",
+    pxIconPrint: "utility:print",
+    pxIconReopenWorkItem: "utility:share",
+    pxIconReview: "utility:preview",
+    pxIconSave: "utility:save",
+    pxIconShowFlowLocation: "utility:location",
+    pxIconSpellChecker: "utility:utility:check",
+    pxIconUpdate: "record_update",
+    pxIconShowReopenScreen: "utility:undo",
+    "dot-3": "utility:threedots",
+    plus: "utility:add",
+    minus: "utility:minimize_window",
+    case: "utility:case",
+    home: "utility:home",
+    search: "utility:search",
+    "arrow-right": "utility:chevronright",
+    reset: "utility:undo",
+    pencil: "utility:edit",
+    gear: "utility:setting",
+    trash: "utility:trash",
+    information: "utility:info",
+    help: "utility:help",
+    warn: "utility:warning"
+
+
 ### `force-app⁩/main⁩/default⁩/lwc⁩/referenceHelper`
 
 - Shared Javascript module to handle translating Pega's fully qualified property paths to a nested JSON Object structure, and vice versa.

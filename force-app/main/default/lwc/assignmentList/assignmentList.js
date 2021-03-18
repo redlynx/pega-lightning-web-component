@@ -433,7 +433,7 @@ export default class AssignmentList extends LightningElement {
       moreAssignments.sort((x, y) => {
         let v0 = x[this.sortedBy];
         let v1 = y[this.sortedBy];
-        return new Date(v0).getTime() - new Date(v1).getTime();
+        return new Date(v0).localeCompare(Date(v1));
       });
     } else {
       moreAssignments.sort((x, y) => {

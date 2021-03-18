@@ -51,7 +51,7 @@
   <template if:true={isGrid}>
     <lightning-layout multiple-rows="true">
       <lightning-layout-item class="slds-clearfix" size="12">
-        <div class="slds-scrollable_y" style={tableHeight}>
+        <div class="slds-scrollable_y" >
           <table class="slds-table slds-table_cell-buffer slds-table_bordered">
             <thead>
               <tr class="slds-line-height_reset">
@@ -86,7 +86,6 @@
                     for:item="group"
                   >
                     <td key={key}>
-                      <!-- <div class="slds-truncate"> class="slds-hint-parent" -->
                       <c-group
                         group-object={group}
                         register-component={registerComponent}
@@ -97,7 +96,6 @@
                         get-work-object={getWorkObject}
                         url={url}
                       ></c-group>
-                      <!-- </div> -->
                     </td>
                   </template>
                 </tr>

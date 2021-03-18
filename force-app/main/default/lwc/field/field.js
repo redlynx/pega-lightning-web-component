@@ -14,6 +14,7 @@ import radiogroup from "./radiogroup.html";
 import checkbox from "./checkbox.html";
 import link from "./link.html";
 import icon from "./icon.html";
+import image from "./image.html";
 import paragraph from "./paragraph.html";
 import attachment from "./attachment.html";
 import displayText from "./displayText.html";
@@ -139,7 +140,7 @@ export default class Field extends LightningElement {
 
   constructor() {
     super();
-    RegExp.escape = function(value) {
+    RegExp.escape = function (value) {
       return value.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
     };
   }
@@ -215,13 +216,9 @@ export default class Field extends LightningElement {
     return Promise.resolve(value);
   };
 
-
-
   render() {
     if (this.fieldObject) {
-      if (this.isCaption()) {
-        return captionField;
-      }
+      if (this.isCaption()) return captionField;
       if (this.fieldObject.visible) {
         if (this.isAttachment()) return attachment;
         if (this.isParagraph()) return paragraph;
@@ -236,6 +233,7 @@ export default class Field extends LightningElement {
         if (this.isCheckbox()) return checkbox;
         if (this.isLink()) return link;
         if (this.isIcon()) return icon;
+        if (this.isImage()) return image;
         if (this.isAutoComplete()) return autocomplete;
       }
     }
@@ -304,17 +302,26 @@ export default class Field extends LightningElement {
   }
 
   setOption = option => {
-    setTimeout(() => {
-      this.fieldChangedHandler(
-        {
-          target: {
-            dataset: { reference: this.fieldObject.reference },
-            value: option
-          }
-        },
-        this
-      );
-    }, 100);
+    this.fieldChangedHandler(
+      {
+        target: {
+          dataset: { reference: this.fieldObject.reference },
+          value: option
+        }
+      },
+      this
+    );
+    // setTimeout(() => {
+    //   this.fieldChangedHandler(
+    //     {
+    //       target: {
+    //         dataset: { reference: this.fieldObject.reference },
+    //         value: option
+    //       }
+    //     },
+    //     this
+    //   );
+    // }, 100);
   };
 
   handleSelectOption(evt) {
@@ -549,7 +556,7 @@ export default class Field extends LightningElement {
   }
 
   isAttachment() {
-    return this.fieldObject.reference && 
+    return this.fieldObject.reference &&
       this.fieldObject.control.type === "pxTextInput" &&
       this.fieldObject.reference.startsWith("AttachRef.pxResults");
   }
@@ -611,6 +618,11 @@ export default class Field extends LightningElement {
       }
     }
     return iconName ? iconName : "utility:info";
+  }
+
+  get imageUrl() {
+    return this.fieldObject.control.modes && this.fieldObject.control.modes.length > 0 ?
+      this.fieldObject.control.modes[0].iconUrl : "";
   }
 
   get currencyCode() {
@@ -800,10 +812,10 @@ export default class Field extends LightningElement {
       if (
         (mode.dateFormat && mode.dateFormat.match(/Date-/i)) ||
         (mode.dateTimeFormat && mode.dateTimeFormat.match(/DateTime-/i)) ||
-          mode.formatType === "number" ||
-          (mode.formatType === "text" &&
-            (mode.autoAppend || mode.autoPrepend)) ||
-          mode.formatType === "truefalse" ||
+        mode.formatType === "number" ||
+        (mode.formatType === "text" &&
+          (mode.autoAppend || mode.autoPrepend)) ||
+        mode.formatType === "truefalse" ||
         mode.formatType === "email" ||
         mode.formatType === "tel" ||
         mode.formatType === "url" ||
@@ -914,7 +926,18 @@ export default class Field extends LightningElement {
   }
 
   isIcon() {
-    return this.fieldObject.control.type === Field.fieldTypes.ICON;
+    return this.fieldObject.control.type === Field.fieldTypes.ICON &&
+      this.fieldObject.control.modes && this.fieldObject.control.modes.length > 0 &&
+      (this.fieldObject.control.modes[0].iconSource === "styleclass"
+        || this.fieldObject.control.modes[0].iconSource === "standardIcon"
+        || this.fieldObject.control.modes[0].iconSource === "image"
+      );
+  }
+
+  isImage() {
+    return this.fieldObject.control.type === Field.fieldTypes.ICON &&
+      this.fieldObject.control.modes && this.fieldObject.control.modes.length > 0 &&
+      this.fieldObject.control.modes[0].iconSource === "exturl";
   }
 
   isLHidden() {

@@ -55,17 +55,17 @@ export default class MyAssignments extends LightningElement {
     //
     // TODO: this is for local debugging, remove it
     //
-    // await apiService.initComponentLocal(this);
-    // this.template
-    //   .querySelector("c-assignment-list")
-    //   .setOperator(this.state.operator);
+    await apiService.initComponentLocal(this);
+    this.template
+      .querySelector("c-assignment-list")
+      .setOperator(this.state.operator);
 
-    if (this.email && this.authentication) {
-        const isInitialized = await apiService.initComponent(this);
-        if (isInitialized) {
-            this.template.querySelector('c-assignment-list').setOperator(this.state.operator);
-        }
-    }
+    // if (this.email && this.authentication) {
+    //     const isInitialized = await apiService.initComponent(this);
+    //     if (isInitialized) {
+    //         this.template.querySelector('c-assignment-list').setOperator(this.state.operator);
+    //     }
+    // }
   }
 
   connectedCallback() {
