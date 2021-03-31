@@ -11,7 +11,7 @@ export default class GetNextWork extends LightningElement {
   cardMode = "nextWork";
 
   @track
-  state = {
+  state = { 
     mode: this.cardMode,
     assignmentId: null,
     caseId: null,

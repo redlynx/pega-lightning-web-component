@@ -620,9 +620,29 @@ export default class Field extends LightningElement {
     return iconName ? iconName : "utility:info";
   }
 
-  get imageUrl() {
+  get imgUrl() {
     return this.fieldObject.control.modes && this.fieldObject.control.modes.length > 0 ?
       this.fieldObject.control.modes[0].iconUrl : "";
+  }
+
+  get imgWidth() {
+    if (this.fieldObject.control.modes && this.fieldObject.control.modes.length && this.fieldObject.control.modes[0].iconUrl) {
+      const imgName = this.fieldObject.control.modes[0].iconUrl.substring(
+          this.fieldObject.control.modes[0].iconUrl.lastIndexOf("/") + 1);
+      const imgParts = imgName.split("_");
+      if (imgParts.length > 2) return imgParts[0]
+    }
+    return "";
+  }
+
+  get imgHeight() {
+    if (this.fieldObject.control.modes && this.fieldObject.control.modes.length && this.fieldObject.control.modes[0].iconUrl) {
+      const imgName = this.fieldObject.control.modes[0].iconUrl.substring(
+          this.fieldObject.control.modes[0].iconUrl.lastIndexOf("/") + 1);
+      const imgParts = imgName.split("_");
+      if (imgParts.length > 2) return imgParts[1]
+    }
+    return "";
   }
 
   get currencyCode() {

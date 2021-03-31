@@ -443,10 +443,12 @@ async function makeRequest(endpoint, method, data, etag, formDataFlag) {
 					responseData.etag = res.headers.get("etag");
 					return responseData;
 				}
+				return res.json();
 			}
-			return res.json();
+			return res.text();
 		}
-		return res.text();
+		const err = await res.json();
+		return Promise.reject(err);
 	} catch (err) {
 		return Promise.reject(err);
 	}
