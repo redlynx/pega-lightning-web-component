@@ -7,7 +7,7 @@ import EMAIL_FIELD from "@salesforce/schema/User.Email";
 import { fireEvent } from "c/pegapubsub";
 import { CurrentPageReference } from "lightning/navigation";
 
-const fields = [
+const opptyFields = [
   "Opportunity.Name",
   "Opportunity.AccountId",
   "Opportunity.OwnerId",
@@ -23,25 +23,38 @@ export default class NextBestAction extends LightningElement {
   @api password;
   @api authentication;
   @api nbaDataPage;
+  @api hardcodedCustomerId;
   @api offerFlowMode;
   @api caseTypeId;
   @api processId;
+  @api caseTypeIdRejected;
+  @api processIdRejected;
   @api caseDisplayMode;
   @api mashupUrl;
 
   @wire(CurrentPageReference) pageRef;
 
   customerId;
-  cardTitle = "Get Offers";
+  cardTitle = "Real-time offers";
   cardIcon = "utility:choice";
   cardOffersMode = "offers";
   cardCreateWorkMode = "createWork";
   content = {};
   selectedOfferId;
+  sfdcCustomerName;
 
+  // get record data for the oppty or service case (based on context in SFDC)
   @api recordId;
-  @wire(getRecord, { recordId: "$recordId", fields })
-  opportunity;
+  @wire(getRecord, { recordId: "$recordId", opptyFields })
+  sfdcOpportunity;
+
+  @wire(getRecord, {
+    recordId: "$recordId",
+    layoutTypes: ["Full"],
+    modes: ["Edit"]
+  })
+  sfdcCase;
+
 
   @track
   state = {
@@ -90,6 +103,7 @@ export default class NextBestAction extends LightningElement {
     if (this.email && this.authentication) {
       await apiService.initComponent(this);
     }
+    this.getNextBestAction();
   }
 
   connectedCallback() {
@@ -134,45 +148,76 @@ export default class NextBestAction extends LightningElement {
     const isEnterKey = evt.keyCode === 13;
     if (isEnterKey) {
       this.customerId = evt.target.value;
-      const offers = await apiService.getDataPage(this.url, this.nbaDataPage, {
-        customerId: this.customerId
-      });
-      if (offers && offers.pxResults) this.nbaData = offers.pxResults;
+      this.getNextBestAction();
     }
   }
 
-  handleChoice = choice => {
+  async getNextBestAction() {
+    this.sfdcCustomerName = this.sfdcCase.data.fields.Contact.displayValue;    
+    let cId;
+    if (this.hardcodedCustomerId.length === 0) 
+      cId = this.sfdcCustomerName;
+    else 
+      cId = this.hardcodedCustomerId;
+    console.log(`customer: ${cId}`);
+
+    const offers = await apiService.getDataPage(this.url, this.nbaDataPage, {
+      customerId : cId,
+      hasRejected: false
+    });
+    if (offers && offers.pxResults) this.nbaData = offers.pxResults;
+
+  }
+
+  handleChoice = choice => {    
     if (this.nbaData.length > 0) {
+      console.log(this.sfdcCase);
+      console.log(this.sfdcCase.data.fields.Contact.displayValue);
       this.selectedOfferId = this.nbaData[this.selectedIdx].ID;
       console.log(
-        `Customer ID: ${this.customerId}, Selected Offer ID: ${this.selectedOfferId}`
+        `Customer ID: ${this.sfdcCustomerName}, Selected Offer ID: ${this.selectedOfferId}, choice: ${choice}`
       );
+      console.log(this.sfdcCase);
       this.nbaData.splice(this.selectedIdx, 1);
       this.selectedIdx = 0;
       this.nbaData = [...this.nbaData];
-      if (choice === "accept") {
-        this.createCase();
-      }
+      this.createCase(
+        this.caseTypeId, 
+        this.processId,
+        choice);
     }
   };
 
-  async createCase() {
+  async createCase(caseTypeId, processId, status) {
     this.showSpinner = true;
     try {
-      if (this.recordId) {
-        this.content = {
-          ID: this.recordId,
-          Name: this.opportunity.data.fields.Name.value,
-          Amount: this.opportunity.data.fields.Amount.value
-        };
-      }
+      console.log(
+        `case type id ${caseTypeId},
+        process id ${processId},
+        offer id ${this.selectedOfferId}, 
+        offer status ${status},         
+        record id ${this.recordId}, 
+        customer id ${this.sfdcCustomerName}`
+      );
+      
+      let content = {        
+        OfferID: this.selectedOfferId,
+        OfferStatus: status,
+        RecordId: this.recordId,        
+        CustomerID: this.customerId
+      };
 
       let body = {
-        caseTypeID: this.caseTypeId,
-        processID: this.processId,
-        content: this.content
+        caseTypeID: caseTypeId,
+        processID: processId,
+        content
       };
+      
+
       let newCase = await apiService.createCase(this.url, body);
+
+      // we don't want to open that case
+      /*
       if (newCase.nextAssignmentID) {
         this.state = {
           ...this.state,
@@ -180,11 +225,12 @@ export default class NextBestAction extends LightningElement {
           caseId: newCase.ID,
           mode: this.cardCreateWorkMode
         };
-
-        fireEvent(this.pageRef, "workObjectCreated", newCase.ID);
+        fireEvent(this.pageRef, "workObjectCreated", newCase.ID);    
       } else {
         apiService.showMessage("Case created", `Case created`, this, "info");
       }
+      */
+
     } catch (err) {
       debugger;
       if (
@@ -201,6 +247,7 @@ export default class NextBestAction extends LightningElement {
         );
       } else {
         apiService.showError(err, this);
+        console.log(err);
       }
     }
     this.showSpinner = false;

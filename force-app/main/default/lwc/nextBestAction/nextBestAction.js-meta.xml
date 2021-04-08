@@ -11,13 +11,16 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__AppPage, lightning__HomePage, lightning__RecordPage">
-            <property name="url" label="DX-API endpoint" description="Pega DX-API endpoint" placeholder="Enter Pega DX-API endpoint" type="String" required="true" default="https://lab5429.lab.pega.com/prweb/api/v1/"/>
+            <property name="url" label="DX-API endpoint" description="Pega DX-API endpoint" placeholder="Enter Pega DX-API endpoint" type="String" required="true" default="https://mansb.pegatsdemo.com/prweb/api/v1/"/>
             <property name="authentication" label="Authentication type" description="Basic authentication is provided for demo purposes, it should never be used for production" datasource="Basic,JWT Bearer" type="String" required="true" default=""/>
             <property name="user" label="Operator ID" placeholder="Enter User ID" type="String" required="false" default="admin.cableco"/>
             <property name="password" label="Operator password" placeholder="Enter Password" required="false" type="String" default="pega"/>
             <property name="nbaDataPage" label="Offers datapage" placeholder="Next Best Action Data Page" required="true" type="String" default="D_CustomerOffers"/>
+            <property name="hardcodedCustomerId" label="Hard-coded customer ID" placeholder="Hard-coded customer ID" required="false" type="String" default="Joe" description="Use a hard-coded customer ID for demos. This value will be provided as property by default. Leave empty to use the contextual customer name when working on a case in Salesforce."/>
             <property name="caseTypeId" label="Accept offer flow class name" placeholder="Enter case class" type="String" required="false" default="O1SPYR-DigExp-Work-CaseFromRecord"/>
             <property name="processId" label="Accept offer flow name" placeholder="Enter process ID" type="String" required="false" default="pyStartCase"/>
+            <property name="caseTypeIdRejected" label="Reject offer flow class name" placeholder="Enter case class" type="String" required="false" default="O1SPYR-DigExp-Work-CaseFromRecord"/>
+            <property name="processIdRejected" label="Reject offer flow name" placeholder="Enter process ID" type="String" required="false" default="pyStartCase"/>
             <property name="caseDisplayMode" label="Display mode" datasource="Mashup,Lightning" type="String" required="true" default="Lightning"/>
             <property name="mashupUrl" label="Mashup URL" placeholder="Enter Mashup URL" type="String" required="false"/>
         </targetConfig>
