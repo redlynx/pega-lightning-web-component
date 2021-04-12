@@ -155,14 +155,15 @@ export default class NextBestAction extends LightningElement {
   async getNextBestAction() {
     this.sfdcCustomerName = this.sfdcCase.data.fields.Contact.displayValue;    
     let cId;
+    /*
     if (this.hardcodedCustomerId.length === 0) 
-      cId = this.sfdcCustomerName;
+    cId = this.sfdcCustomerName;
     else 
       cId = this.hardcodedCustomerId;
     console.log(`customer: ${cId}`);
-
+    */
     const offers = await apiService.getDataPage(this.url, this.nbaDataPage, {
-      customerId : cId,
+      customerId : this.sfdcCustomerName,
       hasRejected: false
     });
     if (offers && offers.pxResults) this.nbaData = offers.pxResults;
@@ -203,7 +204,6 @@ export default class NextBestAction extends LightningElement {
       let content = {        
         OfferID: this.selectedOfferId,
         OfferStatus: status,
-        RecordId: this.recordId,        
         CustomerID: this.customerId
       };
 

@@ -9,7 +9,7 @@ import NAME_FIELD from "@salesforce/schema/User.Name";
 import EMAIL_FIELD from "@salesforce/schema/User.Email";
 
 export default class CreateWork extends LightningElement {
-  cardTitle = "Create Case";
+  cardTitle = "Pega case";
   cardIcon = "utility:record_create";
   cardMode = "createWork";
   numberOfCols = 6;

@@ -11,7 +11,7 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__AppPage, lightning__HomePage, lightning__RecordPage">
-            <property name="url" label="DX-API endpoint" description="Pega DX-API endpoint" placeholder="Enter Pega DX-API endpoint" type="String" required="true" default="https://mansb.pegatsdemo.com/prweb/api/v1/"/>
+            <property name="url" label="DX-API endpoint" description="Pega DX-API endpoint" placeholder="Enter Pega DX-API endpoint" type="String" required="true" default="https://radlw.pegatsdemo.com/prweb/api/v1/"/>
             <property name="authentication" label="Authentication type" description="Basic authentication is provided for demo purposes, it should never be used for production" datasource="Basic,JWT Bearer" type="String" required="true" default=""/>
             <property name="user" label="Operator ID" placeholder="Enter User ID" type="String" required="false" default="admin.cableco"/>
             <property name="password" label="Operator password" placeholder="Enter Password" required="false" type="String" default="pega"/>

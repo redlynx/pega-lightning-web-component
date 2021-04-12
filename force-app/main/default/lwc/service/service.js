@@ -81,7 +81,7 @@ function init(url, auth, user, password) {
 }
 
 async function initComponentLocal(component) {
-	component.urls = "https://mansb.pegatsdemo.com/prweb/api/v1/";
+	component.urls = "https://radlw.pegatsdemo.com/prweb/api/v1/";
 	component.user = "admin.cableco";
 	component.email = "admin.cableco";
 	component.authentication = "Basic";
